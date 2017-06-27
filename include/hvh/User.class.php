@@ -180,7 +180,7 @@ class User extends UserBase {
 		return $ret;
 	}
 
-	public static function GetUserInfo($pDataArray, $pByID = true) {
+	public static function GetUserInfo($pDataArray, $pByID = true, $pAsFriendList = true) {
 		$serverinfo = array('errno' => 0, 'data' => array(), 'error' => '');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 		$ret = array('server' => $serverinfo, 'db' => $dbinfo);
@@ -219,7 +219,41 @@ class User extends UserBase {
 			}
 			array_push($userlist, array_combine($title, $arow));
 		}
-		$ret['server']['data'] = array('userlist' => $userlist);
+		//$ret['server']['data'] = array('userlist' => $userlist);
+		if ($pAsFriendList) {
+			$usergroup = array();
+			foreach ($userlist as $user) {
+				$py = CUtf8_PY::encode($user['nickname']);
+				$key = strtoupper($py[0]);
+				if ($key < 'A' || $key > 'Z') {
+					$key = '#';
+				}
+				if (array_key_exists($key, $usergroup)) {
+					$curval = $usergroup[$key];
+				} else {
+					$curval = array();
+				}
+				array_push($curval, $user);
+				$usergroup[$key] = $curval;
+			}
+			asort($usergroup);
+
+			$k = array_keys($usergroup);
+			$v = array_values($usergroup);
+
+			unset($userlist);
+			$cnt = count($k);
+			for ($i = 0; $i < $cnt; $i++) {
+				$alist = array(
+					'initial' => $k[$i],
+					'list' => $v[$i]
+				);
+				$userlist[$i] = $alist;
+			}
+			$ret['server']['data'] = $userlist;
+		} else {
+			$ret['server']['data'] = $userlist[0];
+		}
 
 		return $ret;
 	}
@@ -246,7 +280,6 @@ class User extends UserBase {
 			return $ret;
 		}
 
-		//$ret = json_decode(EasemobHelper::GetFriend($username))->data;
 		$ret = json_decode(EasemobHelper::GetFriend($username))->data;
 		$ret = self::GetUserInfo($ret, false);
 		return $ret;

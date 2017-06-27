@@ -129,6 +129,10 @@ class Action {
 	"setnickname": {
 		"Func": "SetNickname",
 		"Args": ["mobile", "sessionid", "name"]
+	},
+	"getuser": {
+		"Func": "GetUser",
+		"Args": ["mobile"]
 	}
 }';
 
@@ -324,18 +328,22 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 				);
 	}
 
+	public static function utf8_array_asort(&$array) {
+  if(!isset($array) || !is_array($array)) {
+   return false;
+  }
+  foreach($array as $k=>$v) {
+   $array[$k] = iconv('UTF-8', 'GBK//IGNORE',$v);
+  }
+  asort($array);
+  foreach($array as $k=>$v) {
+   $array[$k] = iconv('GBK', 'UTF-8//IGNORE', $v);
+  }
+  return true;
+}
 	public static function Test() {
-		/*
-		$user = '19e25cc0-0873-06b4-9ee3-c77859437209';
-		$nickname = 'SII Inc.';
-		$ret = User::SetNickname($user, $nickname);
-		return Utils::FormatReturningData($ret);
-		*/
-		$zhstr = array('去','我','额','人','他','有','哦','盘','啊','四','的','是','发','个','好','就','看','来','在','想','从','不','你','名');
-		//sort($zhstr, SORT_LOCALE_STRING);
-		var_dump($zhstr);
-		var_dump("<br>");
-		var_dump(json_encode($zhstr));
+		// Holds any testing/debugging codes
+		echo self::GetUser(['13683514096']);
 	}
 
 	public static function CheckID18($pParamArray) {
@@ -551,6 +559,20 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 			} else {
 				$ret['server']['error'] = 'user not logged in';
 			}
+		} else {
+			// ?
+		}
+		return Utils::FormatReturningData($ret);
+	}
+	
+	public static function GetUser($pParamArray) {
+		$serverinfo = array('errno' => 2009, 'data' => '', 'error' => 'Invalid request');
+		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
+		$ret = array('server' => $serverinfo, 'db' => $dbinfo);
+
+		if (is_array($pParamArray) && count($pParamArray) === 1) {
+			$mobile = $pParamArray[0];
+			$ret = User::GetUserInfo([$mobile], false, false);
 		} else {
 			// ?
 		}
