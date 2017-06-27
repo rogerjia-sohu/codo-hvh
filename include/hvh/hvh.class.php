@@ -5,6 +5,7 @@ require_once 'hvh/Action.class.php';
 require_once 'hvh/Connection.class.php';
 require_once 'hvh/ConnectionPool.class.php';
 require_once 'hvh/Const.class.php';
+require_once 'hvh/CUtf8_PY.class.php';
 require_once 'hvh/DBSearchEngine.class.php';
 require_once 'hvh/DBUtils.class.php';
 require_once 'hvh/Easemob.class.php';
