@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50505
 File Encoding         : 65001
 
-Date: 2017-06-27 15:39:00
+Date: 2017-06-27 16:21:56
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -455,7 +455,6 @@ CREATE TABLE `user` (
   `Height` tinyint(4) DEFAULT NULL,
   `Weight` decimal(5,2) DEFAULT NULL,
   `PortraitID` char(32) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `RegisteredToEasemob` tinyint(1) NOT NULL DEFAULT '0',
   `Status` int(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`ID`) USING BTREE,
   UNIQUE KEY `MobileNum` (`MobileNum`)
@@ -464,8 +463,8 @@ CREATE TABLE `user` (
 -- ----------------------------
 -- Records of user
 -- ----------------------------
-INSERT INTO `user` VALUES ('19d1cd32-b09c-4fe1-ee52-c7825950783f', '13683514098', 'jt002', '航行4098', 'X', null, null, '2017-06-26 10:58:07', '1234', '0', null, null, null, '1c95ca00b4ede83f63610ad9e8f1011c', '0', '1');
-INSERT INTO `user` VALUES ('66e882b7-568e-6b1c-32ee-c7825950783a', '13683514097', 'jt001', '海洋4097', 'X', null, null, '2017-06-26 10:58:02', '1234', '0', null, null, null, '1c95ca00b4ede83f63610ad9e8f1011c', '0', '1');
-INSERT INTO `user` VALUES ('8109b6cb-5c73-1950-ec53-c7765940d843', '13121361262', '1262-8109b6cb', '1262-8109b6cb', 'M', null, null, '2017-06-14 14:31:31', 'Mk123456', '0', null, null, null, '1c95ca00b4ede83f63610ad9e8f1011c', '1', '1');
-INSERT INTO `user` VALUES ('c3b77748-80b7-ab29-6d71-c77e594b2e76', '13683514096', '4096-c3b77748', '天空', 'M', null, null, '2017-06-22 10:41:58', '1234', '0', null, null, null, '1c95ca00b4ede83f63610ad9e8f1011c', '0', '1');
-INSERT INTO `user` VALUES ('c532097d-4a6e-fa11-2c96-c6ae58f08adf', '13426014388', '4388-c532097d', 'Amber', 'M', null, null, '2017-04-14 16:39:59', '1234', '0', null, null, null, '1c95ca00b4ede83f63610ad9e8f1011c', '1', '1');
+INSERT INTO `user` VALUES ('19d1cd32-b09c-4fe1-ee52-c7825950783f', '13683514098', 'jt002', '航行4098', 'X', null, null, '2017-06-26 10:58:07', '1234', '0', null, null, null, '1c95ca00b4ede83f63610ad9e8f1011c', '1');
+INSERT INTO `user` VALUES ('66e882b7-568e-6b1c-32ee-c7825950783a', '13683514097', 'jt001', '海洋4097', 'X', null, null, '2017-06-26 10:58:02', '1234', '0', null, null, null, '1c95ca00b4ede83f63610ad9e8f1011c', '1');
+INSERT INTO `user` VALUES ('8109b6cb-5c73-1950-ec53-c7765940d843', '13121361262', '1262-8109b6cb', '1262-8109b6cb', 'M', null, null, '2017-06-14 14:31:31', 'Mk123456', '0', null, null, null, '1c95ca00b4ede83f63610ad9e8f1011c', '1');
+INSERT INTO `user` VALUES ('c3b77748-80b7-ab29-6d71-c77e594b2e76', '13683514096', '4096-c3b77748', '天空', 'M', null, null, '2017-06-22 10:41:58', '1234', '0', null, null, null, '1c95ca00b4ede83f63610ad9e8f1011c', '1');
+INSERT INTO `user` VALUES ('c532097d-4a6e-fa11-2c96-c6ae58f08adf', '13426014388', '4388-c532097d', 'Amber', 'M', null, null, '2017-04-14 16:39:59', '1234', '0', null, null, null, '1c95ca00b4ede83f63610ad9e8f1011c', '1');
