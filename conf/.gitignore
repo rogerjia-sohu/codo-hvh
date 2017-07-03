@@ -1,0 +1,12 @@
+/full_php_browscap.ini
+/msmtp.ini
+/nginx.fastcgi.conf
+/nginx.mimetypes.conf
+/nginx.phpfarm.conf
+/nginx.redis.conf
+/openssl.conf
+/redis.conf
+/WinSCP.ini
+/wt-nmp.ini
+domains.d
+opensslCA
