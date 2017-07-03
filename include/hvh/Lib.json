@@ -6,6 +6,14 @@
 				"EncOptions": 64
 			}
 		},
+		"InterfaceName": {
+			"Server": "server",
+			"ErrNo": "errno",
+			"Data": "info",
+			"Error": "error",
+			"DB": "db",
+			"SqlState": "sqlstate"
+		},
 		"Redis": {
 			"Host": "localhost",
 			"PoolCapacity": 32,
@@ -38,7 +46,24 @@
 			"HashFunc": 0,
 			"DirNameLength": 2,
 			"DBTableName": "image_md5",
-			"Compression": "Todo"
+			"Compression": {
+				"Enabled": 1,
+				"Use": "Default",
+				"Default": {
+					"Percent": 0.75,
+					"Quality": 2,
+					"Filters": 0,
+					"KeepOriginal": 1,
+					"OriginalPrefix": "original-"
+				},
+				"Portrait": {
+					"MaxSide": 200,
+					"Quality": 0,
+					"Filters": 0,
+					"KeepOriginal": 1,
+					"OriginalPrefix": "original-"
+				}
+			}
 		},
 		"Easemob": {
 			"Server": {
@@ -63,7 +88,25 @@
 				"BaseDir": "easemob/image",
 				"HashFunc": 0,
 				"DirNameLength": 2,
-				"DBTableName": "easemob_image"
+				"DBTableName": "easemob_image",
+				"Compression": {
+					"Enabled": 1,
+					"Use": "Default",
+					"Default": {
+						"Percent": 0.75,
+						"Quality": 2,
+						"Filters": 0,
+						"KeepOriginal": 1,
+						"OriginalPrefix": "original-"
+					},
+					"Portrait": {
+						"MaxSide": 200,
+						"Quality": 0,
+						"Filters": 0,
+						"KeepOriginal": 1,
+						"OriginalPrefix": "original-"
+					}
+				}
 			},
 			"AudioFileManager": {
 				"Root": "DOCUMENT_ROOT",

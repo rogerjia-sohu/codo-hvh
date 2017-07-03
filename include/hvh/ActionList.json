@@ -1,0 +1,114 @@
+{
+	"test": {
+		"Func": "Test",
+		"Args": ["doc", "usr"]
+	},
+	"register": {
+		"Func": "Register",
+		"Args": ["mobile", "pw", "doctor"]
+	},
+	"login": {
+		"Func": "LogIn",
+		"Args": ["mobile", "pw", "lng", "lat", "devid"]
+	},
+	"logout": {
+		"Func": "LogOut",
+		"Args": ["mobile", "sessionid"]
+	},
+	"chpwd": {
+		"Func": "ChangePassword",
+		"Args": ["mobile", "pw", "newpw"]
+	},
+	"rstpwd": {
+		"Func": "ResetPassword",
+		"Args": ["mobile", "pw", "newpw"]
+	},
+	"getval": {
+		"Func": "GetValue",
+		"Args": ["mobile", "sessionid", "paramlist"]
+	},
+	"setval": {
+		"Func": "SetValue",
+		"Args": ["mobile", "sessionid", "paramlist"]
+	},
+	"wxtxtmsg": {
+		"Func": "WxTextMsg",
+		"Args": ["sessionid"]
+	},
+	"sendsms": {
+		"Func": "SendSMS",
+		"Args": ["mobile", "msg"]
+	},
+	"gensmscode": {
+		"Func": "GenSMSCode",
+		"Args": ["mobile", "digit", "ttl", "maxhits"]
+	},
+	"chksmscode": {
+		"Func": "ChkSMSCode",
+		"Args": ["mobile", "smscode"]
+	},
+	"page": {
+		"Func": "GetPage",
+		"Args": ["what", "start", "count"]
+	},
+	"genuuid": {
+		"Func": "GenUUID",
+		"Args": []
+	},
+	"servertime": {
+		"Func": "GetServerTime",
+		"Args": []
+	},
+	"dbtime": {
+		"Func": "GetDBTime",
+		"Args": []
+	},
+	"chkid18": {
+		"Func": "CheckID18",
+		"Args": ["id"]
+	},
+	"chatmsg": {
+		"Func": "ChatMessage",
+		"Args": ["from", "to", "txt", "img"]
+	},
+	"order": {
+		"Func": "PlaceOrder",
+		"Args": ["userid", "docid", "svcid"]
+	},
+	"uploadavatar": {
+		"Func": "UploadAvatar",
+		"Args": ["mobile", "sessionid"]
+	},
+	"chatrecord": {
+		"Func": "ChatRecord",
+		"Args": ["time"]
+	},
+	"silk2amr": {
+		"Func": "Silk2Amr",
+		"Args": []
+	},
+	"clientdl": {
+		"Func": "ClientDownloadFile",
+		"Args": ["url"]
+	},
+	"userinfo": {
+		"Func": "GetUserInfo",
+		"Args": ["mobile", "sessionid", "users"]
+	},
+	"friendinfo": {
+		"Func": "GetFriendInfo",
+		"Args": ["mobile", "sessionid"]
+	},
+	"userchatrecord": {
+		"Func": "UserChatRecord",
+		"Args": ["mobile", "sessionid", "time"]
+	},
+	"setnickname": {
+		"Func": "SetNickname",
+		"Args": ["mobile", "sessionid", "name"]
+	},
+	"getuser": {
+		"Func": "GetUser",
+		"Args": ["mobile"]
+	}
+}

@@ -10,8 +10,9 @@ class Action {
 		return Utils::GetVersion(__CLASS__, __FILE__, $pType);
 	}
 
-	public static $Config;
+//	public static $Config;
 	public static $List;
+/*
 	private static $DefaultConfig =
 '{
 	"Config": {
@@ -19,7 +20,7 @@ class Action {
 	"Description": {
 	}
 }';
-
+*/
 	private static $DefaultList =
 '{
 	"test": {
@@ -644,7 +645,7 @@ ini_set(max_execution_time, $maxtime);
 		$ret = self::$func($args);
 		return $ret;
 	}
-
+/*
 	public static function GetConfig() {
 		$cfg = null;
 		$fn = __DIR__ . str_replace(__NAMESPACE__,'', __CLASS__).'.json';
@@ -657,10 +658,10 @@ ini_set(max_execution_time, $maxtime);
 		}
 		return $cfg;
 	}
-
+*/
 	public static function GetList() {
 		$list = null;
-		$fn = __DIR__ . str_replace(__NAMESPACE__,'', __CLASS__).'.List.json';
+		$fn = __DIR__ . str_replace(__NAMESPACE__,'', __CLASS__).'List.json';
 		if (file_exists($fn)) {
 			$list = json_decode(file_get_contents($fn));
 		}
@@ -671,7 +672,7 @@ ini_set(max_execution_time, $maxtime);
 		return $list;
 	}
 }
-Action::$Config = Action::GetConfig();
+//Action::$Config = Action::GetConfig();
 Action::$List = Action::GetList();
 }// End of namespace
 ?>
