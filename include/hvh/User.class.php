@@ -17,7 +17,7 @@ class User extends UserBase {
 
 	// abstract
 	public function Register() {
-		$serverinfo = array('errno' => 0, 'data' => '', 'error' => '');
+		$serverinfo = array('errno' => 0, Lib::$Config->InterfaceName->Data => '', 'error' => '');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 
 		$defaultname = substr($this->mMobileNum, -4) .'-'. substr($this->mID, 0, 8);
@@ -38,12 +38,12 @@ class User extends UserBase {
 
 		if ($rowcnt === -1) {
 			$serverinfo['errno'] = 1000;
-			$serverinfo['data'] = array('count' => $rowcnt);
+			$serverinfo[Lib::$Config->InterfaceName->Data] = array('count' => $rowcnt);
 			$serverinfo['error'] = 'Register Failed';
 		} else {
 			$imgfm = new ImageFileManager('', 'images/user');
 			$url = $imgfm->GetOneLocalFileUrl(Lib::$Config->User->DefaultPortraitID);
-			$serverinfo['data'] = array(
+			$serverinfo[Lib::$Config->InterfaceName->Data] = array(
 				'count' => $rowcnt,
 				'userid' => $this->mID,
 				'username' => $defaultname,
@@ -58,8 +58,18 @@ class User extends UserBase {
 
 	// abstract
 	public function LogIn() {
-		$serverinfo = array('errno' => 0, 'data' => '', 'error' => '');
-		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
+		$argc = func_num_args();
+		$argv = func_get_args();
+		$lng = $argv[0];
+		$lat = $argv[1];
+		$devid = $argv[2];
+
+		$serverinfo = array(Lib::$Config->InterfaceName->ErrNo => 0,
+							Lib::$Config->InterfaceName->Data => '',
+							Lib::$Config->InterfaceName->Error => '');
+		$dbinfo = array(Lib::$Config->InterfaceName->ErrNo => 0, 
+						Lib::$Config->InterfaceName->SqlState => '00000',
+						Lib::$Config->InterfaceName->Error => '');
 
 		$redis = Lib::RedisInit();
 		$userdata = $redis->hgetall(self::$LoginPrefix . md5($this->mMobileNum));
@@ -69,17 +79,28 @@ class User extends UserBase {
 			$sessid = $userdata['sessionid'];
 			session_id($sessid);
 			@session_start();
-			$serverinfo['data'] = array(
+			//$_SESSION['logintime'] = $logintime;
+			$_SESSION['lng'] = $lng;
+			$_SESSION['lat'] = $lat;
+			$_SESSION['devid'] = $devid;
+
+			$serverinfo[Lib::$Config->InterfaceName->Data] = array(
 					'sessionid'=>$sessid,
 					'userid'=>$_SESSION['UserID'],
+					'mobile'=>$_SESSION['MobileNum'],
 					'username'=>$_SESSION['UserName'],
-					'nickname'=>$_SESSION['Nickname']
+					'nickname'=>$_SESSION['Nickname'],
+					'portrait'=>$_SESSION['portrait'],
+					'logintime'=>$_SESSION['logintime'],
+					'lng'=>$_SESSION['lng'],
+					'lat'=>$_SESSION['lat'],
+					'devid'=>$_SESSION['devid']
 					);
 			$redis = Lib::RedisInit();
 			$redis->touch_ttl(self::$LoginPrefix . md5($this->mMobileNum));
 			Lib::RedisTerm($redis);
 		} else {
-			$strfmt = "select `ID`,`MobileNum`,`Name`,`Nickname`,`RegTime`,`Password`"
+			$strfmt = "select `ID`,`MobileNum`,`Name`,`Nickname`,`RegTime`,`Password`,`PortraitID`"
 				." from %s where `MobileNum`='%s';";
 			$sql = sprintf($strfmt, $this->mDBTableName, $this->mMobileNum);
 
@@ -89,17 +110,34 @@ class User extends UserBase {
 			if (is_array($row) && $row['Password']===$this->mPassword) {
 				@session_start();
 				$sessid = session_id();
+				$logintime = Utils::GetTimeArray(microtime(true))['timestamp'];
+
 				$_SESSION['UserID'] = $row['ID'];
 				$_SESSION['MobileNum'] = $row['MobileNum'];
 				$_SESSION['UserName'] = $row['Name'];
 				$_SESSION['Nickname'] = $row['Nickname'];
 				$_SESSION['RegTime'] = $row['RegTime'];
+				$_SESSION['PortraitID'] = $row['PortraitID'];
 
-				$serverinfo['data'] = array(
+				$imgfm = new ImageFileManager('', 'images/user');
+				$portrait = $imgfm->GetOneLocalFileUrl($_SESSION['PortraitID']);
+				$_SESSION['portrait'] = $portrait;
+				$_SESSION['logintime'] = $logintime;
+				$_SESSION['lng'] = $lng;
+				$_SESSION['lat'] = $lat;
+				$_SESSION['devid'] = $devid;
+				
+				$serverinfo[Lib::$Config->InterfaceName->Data] = array(
 					'sessionid'=>$sessid,
 					'userid'=>$row['ID'],
+					'mobile'=>$row['MobileNum'],
 					'username'=>$row['Name'],
-					'nickname'=>$row['Nickname']
+					'nickname'=>$row['Nickname'],
+					'portrait'=>$portrait,
+					'logintime'=>$logintime,
+					'lng'=>$lng,
+					'lat'=>$lat,
+					'devid'=>$devid
 					);
 
 				$userkey = self::$LoginPrefix . md5($row['MobileNum']);
@@ -112,24 +150,24 @@ class User extends UserBase {
 				$redis->hmsetex_sessionttl($userkey, $userdata);
 				Lib::RedisTerm($redis);
 			} else {
-				$serverinfo['errno'] = 1001;
-				$serverinfo['data'] = array('count' => $db->affected_rows,
+				$serverinfo[Lib::$Config->InterfaceName->ErrNo] = 1001;
+				$serverinfo[Lib::$Config->InterfaceName->Data] = array('count' => $db->affected_rows,
 				'sessionid'=>'');
-				$serverinfo['error'] = 'Login Faild';
+				$serverinfo[Lib::$Config->InterfaceName->Error] = 'Login Faild';
 			}
-			$dbinfo['errno'] = $db->errno;
-			$dbinfo['sqlstate'] = $db->sqlstate;
-			$dbinfo['error'] = $db->error;
+			$dbinfo[Lib::$Config->InterfaceName->ErrNo] = $db->errno;
+			$dbinfo[Lib::$Config->InterfaceName->SqlState] = $db->sqlstate;
+			$dbinfo[Lib::$Config->InterfaceName->Error] = $db->error;
 			Lib::DBTerm($db);
 		}
 
-		$ret = array('server' => $serverinfo, 'db' => $dbinfo);
+		$ret = array(Lib::$Config->InterfaceName->Server => $serverinfo, Lib::$Config->InterfaceName->DB => $dbinfo);
 
 		return $ret;
 	}
 
 	static function LogOut($pMobile, $pSessionID) {
-		$serverinfo = array('errno' => 0, 'data' => '', 'error' => '');
+		$serverinfo = array('errno' => 0, Lib::$Config->InterfaceName->Data => '', 'error' => '');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 
 		$redis = Lib::RedisInit();
@@ -155,8 +193,8 @@ class User extends UserBase {
 		return $ret;
 	}
 
-	public static function UpdatePhoto($pUserID, $pKeyExt) {
-		$serverinfo = array('errno' => 0, 'data' => '', 'error' => '');
+	public static function UpdateAvatar($pUserID, $pKeyExt) {
+		$serverinfo = array('errno' => 0, Lib::$Config->InterfaceName->Data => '', 'error' => '');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 
 		$keyinfo = explode('.', $pKeyExt);
@@ -181,7 +219,7 @@ class User extends UserBase {
 	}
 
 	public static function GetUserInfo($pDataArray, $pByID = true, $pAsFriendList = true) {
-		$serverinfo = array('errno' => 0, 'data' => array(), 'error' => '');
+		$serverinfo = array('errno' => 0, Lib::$Config->InterfaceName->Data => array(), 'error' => '');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 		$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 
@@ -219,7 +257,7 @@ class User extends UserBase {
 			}
 			array_push($userlist, array_combine($title, $arow));
 		}
-		//$ret['server']['data'] = array('userlist' => $userlist);
+		//$ret['server'][Lib::$Config->InterfaceName->Data] = array('userlist' => $userlist);
 		if ($pAsFriendList) {
 			$usergroup = array();
 			foreach ($userlist as $user) {
@@ -236,8 +274,7 @@ class User extends UserBase {
 				array_push($curval, $user);
 				$usergroup[$key] = $curval;
 			}
-			asort($usergroup);
-
+			ksort($usergroup);
 			$k = array_keys($usergroup);
 			$v = array_values($usergroup);
 
@@ -246,30 +283,30 @@ class User extends UserBase {
 			for ($i = 0; $i < $cnt; $i++) {
 				$alist = array(
 					'initial' => $k[$i],
-					'list' => $v[$i]
+					"infolist" => $v[$i]
 				);
 				$userlist[$i] = $alist;
 			}
-			$ret['server']['data'] = $userlist;
+			$ret['server'][Lib::$Config->InterfaceName->Data] = $userlist;
 		} else {
-			$ret['server']['data'] = $userlist[0];
+			$ret['server'][Lib::$Config->InterfaceName->Data] = $userlist[0];
 		}
 
 		return $ret;
 	}
 
 	public static function GetUsernameByID($pUserID) {
-		$ret = self::GetUserInfo(array($pUserID))['server']['data']['userlist'][0]['name'];
+		$ret = self::GetUserInfo(array($pUserID), true, false)['server'][Lib::$Config->InterfaceName->Data]['name'];
 		return $ret;
 	}
 
 	public static function GetUserIDByName($pUsername) {
-		$ret = self::GetUserInfo(array($pUsername))['server']['data']['userlist'][0]['userid'];
+		$ret = self::GetUserInfo(array($pUsername))['server'][Lib::$Config->InterfaceName->Data]['userlist'][0]['userid'];
 		return $ret;
 	}
 
 	public static function GetFriendInfo($pUser, $pByID = true) {
-		$serverinfo = array('errno' => 0, 'data' => array(), 'error' => '');
+		$serverinfo = array('errno' => 0, Lib::$Config->InterfaceName->Data => array(), 'error' => '');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 		$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 
@@ -286,17 +323,16 @@ class User extends UserBase {
 	}
 
 	public static function SetNickname($pUser, $pNickname, $pByID = true) {
-		$serverinfo = array('errno' => 0, 'data' => array(), 'error' => '');
+		$serverinfo = array('errno' => 0, Lib::$Config->InterfaceName->Data => array(), 'error' => '');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 		$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 
 		$username = $pByID? self::GetUsernameByID($pUser) : $pUser;
 		if (empty($username)) {
-			$ret['server']['errno'] = 2003;
+			$ret['server']['errno'] = 2004;
 			$ret['server']['error'] = 'Invalid user ID specified';
 			return $ret;
 		}
-
 		//$ret = json_decode(EasemobHelper::SetNickname($username, $pNickname));
 		//if ($ret->entities[0]->nickname === $pNickname) {
 			$ret = self::UpdateInfo($pUser, array('Nickname' => $pNickname), $pByID);
@@ -305,7 +341,7 @@ class User extends UserBase {
 	}
 
 	protected static function UpdateInfo($pUser, $pInfoArray, $pByID = true) {
-		$serverinfo = array('errno' => 0, 'data' => '', 'error' => '');
+		$serverinfo = array('errno' => 0, Lib::$Config->InterfaceName->Data => '', 'error' => '');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 		$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 
@@ -328,7 +364,7 @@ class User extends UserBase {
 				explode('.', basename(__FILE__))[0],
 				$searchfield[$pByID],
 				$pUser);
-		
+
 		$db = Lib::DBInit();
 		$db->query($sql);
 		Lib::DBTerm($db);

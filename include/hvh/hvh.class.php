@@ -13,6 +13,7 @@ require_once 'hvh/EasemobChatRecord.class.php';
 require_once 'hvh/EasemobFileManager.class.php';
 require_once 'hvh/EasemobHelper.class.php';
 require_once 'hvh/HashedFileManager.class.php';
+require_once 'hvh/ImageCompressor.class.php';
 require_once 'hvh/ImageFileManager.class.php';
 require_once 'hvh/HJSms.class.php';
 require_once 'hvh/HJSmsPool.class.php'; // 短信网关
@@ -51,6 +52,14 @@ class Lib {
 				"EncOptions": 64
 			}
 		},
+		"InterfaceName": {
+			"Server": "server",
+			"ErrNo": "errno",
+			"Data": "info",
+			"Error": "error",
+			"DB": "db",
+			"SqlState": "sqlstate"
+		},
 		"Redis": {
 			"Host": "localhost",
 			"PoolCapacity": 32,
@@ -83,7 +92,24 @@ class Lib {
 			"HashFunc": 0,
 			"DirNameLength": 2,
 			"DBTableName": "image_md5",
-			"Compression": "Todo"
+			"Compression": {
+				"Enabled": 1,
+				"Use": "Default",
+				"Default": {
+					"Percent": 0.75,
+					"Quality": 2,
+					"Filters": 0,
+					"KeepOriginal": 1,
+					"OriginalPrefix": "original-"
+				},
+				"Portrait": {
+					"MaxSide": 200,
+					"Quality": 0,
+					"Filters": 0,
+					"KeepOriginal": 1,
+					"OriginalPrefix": "original-"
+				}
+			}
 		},
 		"Easemob": {
 			"Server": {
@@ -108,7 +134,25 @@ class Lib {
 				"BaseDir": "easemob/image",
 				"HashFunc": 0,
 				"DirNameLength": 2,
-				"DBTableName": "easemob_image"
+				"DBTableName": "easemob_image",
+				"Compression": {
+					"Enabled": 1,
+					"Use": "Default",
+					"Default": {
+						"Percent": 0.75,
+						"Quality": 2,
+						"Filters": 0,
+						"KeepOriginal": 1,
+						"OriginalPrefix": "original-"
+					},
+					"Portrait": {
+						"MaxSide": 200,
+						"Quality": 0,
+						"Filters": 0,
+						"KeepOriginal": 1,
+						"OriginalPrefix": "original-"
+					}
+				}
 			},
 			"AudioFileManager": {
 				"Root": "DOCUMENT_ROOT",

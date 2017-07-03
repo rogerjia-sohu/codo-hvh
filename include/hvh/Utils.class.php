@@ -72,6 +72,19 @@ class Utils {
 		return $ret;
 	}
 
+	public static function GetTimeArray($pTimestamp) {
+		return array(
+				'year' => (int)date('Y', $pTimestamp),
+				'month' => (int)date('m', $pTimestamp),
+				'day' => (int)date('d', $pTimestamp),
+				'hour' => (int)date('H', $pTimestamp),
+				'minute' => (int)date('i', $pTimestamp),
+				'second' => (int)date('s', $pTimestamp),
+				'millisecond' => (int)(($pTimestamp - (int)$pTimestamp) * 1000),
+				'leap' => (int)date('L', $pTimestamp),
+				'timestamp' => (int)$pTimestamp
+				);
+	}
 ////////////////////////////////////////////////////////////////
 	/**
 	 * 模拟post进行url请求

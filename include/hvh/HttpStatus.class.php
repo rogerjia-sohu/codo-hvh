@@ -4,7 +4,7 @@ class HttpStatus {
 
 	public static function Out($pCode) {
 		$code = (int)$pCode;
-		$serverinfo = array('errno' => $code, 'data' => '', 'error' => 'unknown error');
+		$serverinfo = array('errno' => $code, Lib::$Config->InterfaceName->Data => '', 'error' => 'unknown error');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 
 		$statusinfo = array(

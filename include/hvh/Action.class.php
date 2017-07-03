@@ -32,7 +32,7 @@ class Action {
 	},
 	"login": {
 		"Func": "LogIn",
-		"Args": ["mobile", "pw", "wxcode"]
+		"Args": ["mobile", "pw", "lng", "lat", "devid"]
 	},
 	"logout": {
 		"Func": "LogOut",
@@ -68,7 +68,7 @@ class Action {
 	},
 	"chksmscode": {
 		"Func": "ChkSMSCode",
-		"Args": ["mobile", "code"]
+		"Args": ["mobile", "smscode"]
 	},
 	"page": {
 		"Func": "GetPage",
@@ -98,8 +98,8 @@ class Action {
 		"Func": "PlaceOrder",
 		"Args": ["userid", "docid", "svcid"]
 	},
-	"uploadphoto": {
-		"Func": "UploadPhoto",
+	"uploadavatar": {
+		"Func": "UploadAvatar",
 		"Args": ["mobile", "sessionid"]
 	},
 	"chatrecord": {
@@ -137,7 +137,7 @@ class Action {
 }';
 
 	public static function Register($pParamArray) {
-		$serverinfo = array('errno' => 2000, 'data' => '', 'error' => 'Invalid request');
+		$serverinfo = array('errno' => 2000, Lib::$Config->InterfaceName->Data => '', 'error' => 'Invalid request');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 		$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 
@@ -148,8 +148,8 @@ class Action {
 				$pw = $pParamArray[1];
 				$user = new User($mobile, $pw);
 				$ret = $user->Register();
-				$username = $ret['server']['data']['username'];
-				$nickname = $ret['server']['data']['nickname'];
+				$username = $ret['server'][Lib::$Config->InterfaceName->Data]['username'];
+				$nickname = $ret['server'][Lib::$Config->InterfaceName->Data]['nickname'];
 				if (!empty($username)) {
 					//EasemobHelper::CreateUser($username, $pParamArray[1]);
 					EasemobHelper::CreateUser($mobile, $pw);
@@ -166,15 +166,23 @@ class Action {
 
 	public static function LogIn($pParamArray) {
 		$argc = count($pParamArray);
-		if (is_array($pParamArray) && ($argc === 2 || $argc === 3)) {
+		if (is_array($pParamArray) && ($argc === 5)) {
+			$mobile = $pParamArray[0];
+			$pw = $pParamArray[1];
+			$lng = $pParamArray[2];
+			$lat = $pParamArray[3];
+			$devid = $pParamArray[4];
+			/*
 			if ($argc === 3) {
 				$user = new User($pParamArray[0], $pParamArray[1], $pParamArray[2]);
 			} else {
 				$user = new User($pParamArray[0], $pParamArray[1]);
-			}
-			$ret = $user->LogIn();
+			}*/
+			//var_dump($pParamArray);
+			$user = new User($mobile, $pw, $devid);
+			$ret = $user->LogIn($lng, $lat, $devid);
 		} else {
-			$serverinfo = array('errno' => 2001, 'data' => '', 'error' => 'Invalid request');
+			$serverinfo = array('errno' => 2001, Lib::$Config->InterfaceName->Data => '', 'error' => 'Invalid request');
 			$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 			$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 		}
@@ -195,7 +203,7 @@ class Action {
 			//$user = new User($pParamArray[0], $pParamArray[1]);
 			//$ret = $user->Register();
 		} else {
-			$serverinfo = array('errno' => 2000, 'data' => '', 'error' => 'Invalid request');
+			$serverinfo = array('errno' => 2000, Lib::$Config->InterfaceName->Data => '', 'error' => 'Invalid request');
 			$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 			$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 		}
@@ -210,7 +218,7 @@ class Action {
 			//$user = new User($pParamArray[0], $pParamArray[1]);
 			//$ret = $user->Register();
 		} else {
-			$serverinfo = array('errno' => 2000, 'data' => '', 'error' => 'Invalid request');
+			$serverinfo = array('errno' => 2000, Lib::$Config->InterfaceName->Data => '', 'error' => 'Invalid request');
 			$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 			$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 		}
@@ -223,7 +231,7 @@ class Action {
 		if (is_array($pParamArray) && count($pParamArray) === 3) {
 			//
 		} else {
-			$serverinfo = array('errno' => 2000, 'data' => '', 'error' => 'Invalid request');
+			$serverinfo = array('errno' => 2000, Lib::$Config->InterfaceName->Data => '', 'error' => 'Invalid request');
 			$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 			$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 		}
@@ -236,7 +244,7 @@ class Action {
 		if (is_array($pParamArray) && count($pParamArray) === 3) {
 			//
 		} else {
-			$serverinfo = array('errno' => 2000, 'data' => '', 'error' => 'Invalid request');
+			$serverinfo = array('errno' => 2000, Lib::$Config->InterfaceName->Data => '', 'error' => 'Invalid request');
 			$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 			$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 		}
@@ -300,7 +308,7 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 	}
 
 	public static function GetServerTime($pParamArray) {
-		$ret = array( 'servertime' => self::GetTimeArray(microtime(true)));
+		$ret = array( 'servertime' => Utils::GetTimeArray(microtime(true)));
 		return Utils::FormatReturningData($ret);
 	}
 
@@ -309,41 +317,58 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 		$result = $db->Query('select UNIX_TIMESTAMP();');
 		Lib::DBTerm($db);
 
-		$ret = array( 'dbtime' => self::GetTimeArray($result->fetch_array(MYSQLI_NUM)[0]));
+		$ret = array( 'dbtime' => Utils::GetTimeArray($result->fetch_array(MYSQLI_NUM)[0]));
 		return Utils::FormatReturningData($ret);
 	}
 
-	private static function GetTimeArray($pTimestamp) {
-		var_dump($pTimestamp);
-		return array(
-				'year' => (int)date('Y', $pTimestamp),
-				'month' => (int)date('m', $pTimestamp),
-				'day' => (int)date('d', $pTimestamp),
-				'hour' => (int)date('H', $pTimestamp),
-				'minute' => (int)date('i', $pTimestamp),
-				'second' => (int)date('s', $pTimestamp),
-				'millisecond' => (int)(($pTimestamp - (int)$pTimestamp) * 1000),
-				'leap' => (int)date('L', $pTimestamp),
-				'timestamp' => (int)$pTimestamp
-				);
-	}
-
-	public static function utf8_array_asort(&$array) {
-  if(!isset($array) || !is_array($array)) {
-   return false;
-  }
-  foreach($array as $k=>$v) {
-   $array[$k] = iconv('UTF-8', 'GBK//IGNORE',$v);
-  }
-  asort($array);
-  foreach($array as $k=>$v) {
-   $array[$k] = iconv('GBK', 'UTF-8//IGNORE', $v);
-  }
-  return true;
-}
 	public static function Test() {
 		// Holds any testing/debugging codes
-		echo self::GetUser(['13683514096']);
+		//echo self::GetUser(['13683514096']);
+$maxtime = ini_get(max_execution_time);
+ini_set(max_execution_time, $maxtime* 10);
+		$srcfile = 'D:/WTServer/tmp/SC001.png';
+		$dstfile = 'D:/WTServer/tmp/SC001-small.png';
+		//$imgcompress = new ImageCompressor($srcfile, Lib::$Config->ImageFileManager->Compression->Default);
+		//var_dump($imgcompress->CompressTo($dstfile));
+
+		$imgfm = new ImageFileManager('','images/user',HASH_MD5,2,Lib::$Config->ImageFileManager->DBTableName, Lib::$Config->ImageFileManager->Compression);
+		$imgfm->EnableCompression(0);
+		//var_dump($imgfm);
+		$imgfm->EnableCompression(true);
+		$imgfm->SetCompressionMode('Portrait');
+		//var_dump($imgfm);
+		//var_dump($imgfm->SaveFile($srcfile));
+echo CUtf8_PY::encode('abcyxz', 1);
+/*
+		$mobile = 13683514101;
+		//$cnt = 21;
+		$cnt = 7;
+		$lastmobile = $cnt + $mobile;
+
+		for ($i = $mobile; $i < $lastmobile; $i++) {
+			$nickname = sprintf('FcodoTest%02u', $i - $mobile + 1);
+			echo "$i<br>";
+			//EasemobHelper::CreateUser($i, '1234');
+			//EasemobHelper::SetNickname($i, $nickname);
+			for ($j = $i+1; $j < $lastmobile; $j++) {
+				echo "&nbsp&nbsp$i, $j, $nickname";
+				//EasemobHelper::AddFriend($i, $j);
+				//echo EasemobHelper::GetUser($i);
+				//break;
+			}
+			//break;
+
+			//self::Register([$i, '1234']);
+			//735272d2-52ce-4d75-6204-c784595317a0
+			
+			//EasemobHelper::SetNickname($i, $nickname);
+			//$userid = json_decode(self::GetUser([$i]))->server->info->userid;
+			//echo "$userid<br>";
+			//(User::SetNickname($userid, $nickname, false));
+			//break;
+		}
+*/
+ini_set(max_execution_time, $maxtime);
 	}
 
 	public static function CheckID18($pParamArray) {
@@ -370,7 +395,7 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 
 	public static function PlaceOrder($pParamArray) {
 /*
-		$serverinfo = array('errno' => 2000, 'data' => '', 'error' => 'Invalid request');
+		$serverinfo = array('errno' => 2000, Lib::$Config->InterfaceName->Data => '', 'error' => 'Invalid request');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 		$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 */
@@ -388,7 +413,7 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 		return Utils::FormatReturningData($ret);
 	}
 
-	public static function UploadPhoto($pParamArray) {
+	public static function UploadAvatar($pParamArray) {
 		$ret = false;
 		$files = Utils::GetAllPostedFileInfo();
 
@@ -398,28 +423,35 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 			$ret = User::IsLoggedIn($mobile, $sessionid);
 			if ($ret) {
 				foreach ($files as $fileinfo) {					
-					$fm = new ImageFileManager($_SERVER['DOCUMENT_ROOT'], 'images/user');
+					$fm = new ImageFileManager($_SERVER['DOCUMENT_ROOT'], 'images/user',
+									0, 0, null, Lib::$Config->ImageFileManager->Compression);
+					$fm->EnableCompression(true);
+					$fm->SetCompressionMode('Portrait');
+
 					if (is_array($fileinfo['name'])) {
 						$orgext = '.'.pathinfo($fileinfo['name'][0], PATHINFO_EXTENSION);
-						$tmpfile = $_FILES['filelist']['tmp_name'][0];
+						$tmpfile = $fileinfo['tmp_name'][0];
 					} else {
 						$orgext = '.'.pathinfo($fileinfo['name'], PATHINFO_EXTENSION);
-						$tmpfile = $_FILES['filelist']['tmp_name'];
+						$tmpfile = $fileinfo['tmp_name'];
 					}
 					$tmpfile_w_orgext = $tmpfile . $orgext;
 					rename($tmpfile, $tmpfile_w_orgext);
 					$hkey = '';
 					$ret = $fm->SaveFile($tmpfile_w_orgext, null, true, $hkey);
-					unlink($tmpfile_w_orgext);
 
 					session_id($sessionid);
 					@session_start();
-					User::UpdatePhoto($_SESSION['UserID'], $hkey.$orgext);
+					User::UpdateAvatar($_SESSION['UserID'], $hkey.$orgext);
 					break; // handles only the first file posted
 				}
 			}
 		}
-		return ($ret);
+		if (count($ret) === 2) {
+			//thumbnail
+			$urllist = array_combine(array('original', 'thumbnail'),$ret); 
+		}
+		return Utils::FormatReturningData(array('url' => $urllist));
 	}
 
 	public static function ChatRecord($pParamArray) {
@@ -468,7 +500,7 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 	}
 
 	public static function GetUserInfo($pParamArray) {
-		$serverinfo = array('errno' => 2008, 'data' => '', 'error' => 'Invalid request');
+		$serverinfo = array('errno' => 2008, Lib::$Config->InterfaceName->Data => '', 'error' => 'Invalid request');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 		$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 
@@ -491,7 +523,7 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 	}
 
 	public static function GetFriendInfo($pParamArray) {
-		$serverinfo = array('errno' => 2008, 'data' => '', 'error' => 'Invalid request');
+		$serverinfo = array('errno' => 2008, Lib::$Config->InterfaceName->Data => '', 'error' => 'Invalid request');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 		$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 
@@ -513,7 +545,7 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 	}
 
 	public static function UserChatRecord($pParamArray) {
-		$serverinfo = array('errno' => 2008, 'data' => '', 'error' => 'Invalid request');
+		$serverinfo = array('errno' => 2008, Lib::$Config->InterfaceName->Data => '', 'error' => 'Invalid request');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 		$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 		echo "### UserChatRecord, NOT finished yet!<br>";
@@ -541,7 +573,7 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 	}
 
 	public static function SetNickname($pParamArray) {
-		$serverinfo = array('errno' => 2008, 'data' => '', 'error' => 'Invalid request');
+		$serverinfo = array('errno' => 2008, Lib::$Config->InterfaceName->Data => '', 'error' => 'Invalid request');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 		$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 
@@ -566,7 +598,7 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 	}
 	
 	public static function GetUser($pParamArray) {
-		$serverinfo = array('errno' => 2009, 'data' => '', 'error' => 'Invalid request');
+		$serverinfo = array('errno' => 2009, Lib::$Config->InterfaceName->Data => '', 'error' => 'Invalid request');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 		$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 

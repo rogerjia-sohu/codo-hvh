@@ -188,6 +188,7 @@ class HashedFileManager {
 						$this->mDBTableName, (int)$pIncVal, $pID);
 
 		$db = Lib::DBInit();
+		$db->autocommit(false);
 		$db->begin_transaction();
 			$db->query($sql);
 			if ((int)$pIncVal > 0) {

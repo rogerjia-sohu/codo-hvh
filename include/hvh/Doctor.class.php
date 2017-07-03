@@ -17,7 +17,7 @@ class Doctor extends UserBase {
 
 	// abstract
 	public function Register() {
-		$serverinfo = array('errno' => 0, 'data' => '', 'error' => '');
+		$serverinfo = array('errno' => 0, Lib::$Config->InterfaceName->Data => '', 'error' => '');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 
 		$strfmt = "insert into `%s`(`ID`,`MobileNum`,`Name`,`RegTime`,`Password`)"
@@ -32,7 +32,7 @@ class Doctor extends UserBase {
 		$rowcnt = $db->affected_rows;
 		if ($rowcnt === -1) {
 			$serverinfo['errno'] = 1000;
-			$serverinfo['data'] = array('count' => $rowcnt);
+			$serverinfo[Lib::$Config->InterfaceName->Data] = array('count' => $rowcnt);
 			$serverinfo['error'] = 'Register Failed';
 		}
 
@@ -47,7 +47,7 @@ class Doctor extends UserBase {
 	
 	// abstract
 	public function LogIn() {
-		$serverinfo = array('errno' => 0, 'data' => '', 'error' => '');
+		$serverinfo = array('errno' => 0, Lib::$Config->InterfaceName->Data => '', 'error' => '');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 
 		$redis = Lib::RedisInit();
@@ -56,7 +56,7 @@ class Doctor extends UserBase {
 		$iphash = $userdata['iphash'];
 		if ($iphash === md5($_SERVER['REMOTE_ADDR'])) {
 			$sessid = $userdata['sessionid'];
-			$serverinfo['data'] = array('sessionid'=>$sessid);
+			$serverinfo[Lib::$Config->InterfaceName->Data] = array('sessionid'=>$sessid);
 			session_id($sessid);
 			@session_start();
 
@@ -75,7 +75,7 @@ class Doctor extends UserBase {
 				@session_start();
 				$sessid = session_id();
 
-				$serverinfo['data'] = array('sessionid'=>$sessid);
+				$serverinfo[Lib::$Config->InterfaceName->Data] = array('sessionid'=>$sessid);
 				$_SESSION['UserID'] = $row['ID'];
 				$_SESSION['MobileNum'] = $row['MobileNum'];
 				$_SESSION['UserName'] = $row['Name'];
@@ -92,7 +92,7 @@ class Doctor extends UserBase {
 				Lib::RedisTerm($redis);
 			} else {
 				$serverinfo['errno'] = 1001;
-				$serverinfo['data'] = array('count' => $db->affected_rows,
+				$serverinfo[Lib::$Config->InterfaceName->Data] = array('count' => $db->affected_rows,
 				'sessionid'=>'');
 				$serverinfo['error'] = 'Login Faild';
 			}
@@ -108,7 +108,7 @@ class Doctor extends UserBase {
 	}
 
 	static function LogOut($pMobile, $pSessionID) {
-		$serverinfo = array('errno' => 0, 'data' => '', 'error' => '');
+		$serverinfo = array('errno' => 0, Lib::$Config->InterfaceName->Data => '', 'error' => '');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 
 		$redis = Lib::RedisInit();

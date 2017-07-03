@@ -55,7 +55,7 @@ class EasemobHelper{
 		$easemob = self::CreateEasemob();
 		$chatlogarr = $easemob->getChatRecord30($pTime10);
 
-		$chatdata = $chatlogarr['data'];
+		$chatdata = $chatlogarr[Lib::$Config->InterfaceName->Data];
 		if (is_array($chatdata)) {
 			$totalrecord = array();
 			foreach ($chatdata as $gzfile) {
@@ -90,7 +90,7 @@ class EasemobHelper{
 	public static function IsOnline($pUsername) {
 		$easemob = self::CreateEasemob();
 		$rawdata = $easemob->isOnline($pUsername);
-		$ret = $rawdata['data'];
+		$ret = $rawdata[Lib::$Config->InterfaceName->Data];
 		if (!@array_key_exists($pUsername, $ret)) {
 			$ret = array( $pUsername => $rawdata['error_description']);
 		}
@@ -120,6 +120,11 @@ class EasemobHelper{
 	public static function SetNickname($pUsername, $pNickname) {
 		$easemob = self::CreateEasemob();
 		return Utils::FormatReturningData($easemob->editNickname($pUsername, $pNickname));
+	}
+
+	public static function AddFriend($pUsername, $pFriendName) {
+		$easemob = self::CreateEasemob();
+		return Utils::FormatReturningData($easemob->addFriend($pUsername, $pFriendName));
 	}
 }
 }// End of namespace

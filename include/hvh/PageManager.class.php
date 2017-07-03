@@ -42,7 +42,7 @@ class PageManager {
 
 	private static function LoadPageFromObjToRedis($pObj, $pStart, &$pCount, &$pTotal) {
 		$pTotal = $pObj->GetCount();
-		$hlist = $pObj->GetDataList([$pStart, $pCount])['server']['data'];
+		$hlist = $pObj->GetDataList([$pStart, $pCount])['server'][Lib::$Config->InterfaceName->Data];
 
 		if ($pCount > $pTotal) {
 			$pCount = $pTotal;

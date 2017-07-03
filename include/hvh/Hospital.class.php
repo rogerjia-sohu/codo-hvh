@@ -55,7 +55,7 @@ class Hospital implements iPageable{
 // 回传还需要一个total 如果没有这参数默认count为20 start为0
 //{count: start: total: subjects:{ name: addr: summary: img:{s: m: l:} departments:{XXX,XXX,XXX} } 这样就ok
 
-		$serverinfo = array('errno' => 0, 'data' => '', 'error' => '');
+		$serverinfo = array('errno' => 0, Lib::$Config->InterfaceName->Data => '', 'error' => '');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 
 		$strfmt = "select `Name` as `name`,"
@@ -85,7 +85,7 @@ class Hospital implements iPageable{
 			array_push($infolist, $row);
 		}
 		Lib::DBTerm($db);
-		$serverinfo['data'] = $infolist;
+		$serverinfo[Lib::$Config->InterfaceName->Data] = $infolist;
 		$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 		return $ret;
 	}
