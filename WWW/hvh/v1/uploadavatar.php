@@ -63,7 +63,7 @@ if (!empty($_FILES)) {
 </script>
 </head>
 <body onload='addLabelAndFile(1)'>
-<form id="frmUpload" action="/hvh/v1/api/uploadphoto?mobile=13683514096&sessionid=7392977d8722e40f62988d37bbdbee4d" method="post" enctype="multipart/form-data">
+<form id="frmUpload" action="/hvh/v1/api/uploadavatar?mobile=13683514096&sessionid=ff94f94493298a228d168fdca138c4bd" method="post" enctype="multipart/form-data">
 <input type="submit" name="submit" value="上传" />
 <input type="button" name="addFile" value="+file (max=10)" onclick="addLabelAndFile(1)" />
 <p/>
