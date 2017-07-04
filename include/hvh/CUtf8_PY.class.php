@@ -47,7 +47,7 @@ class CUtf8_PY {
      * @param string $sRetFormat 返回格式 [head:首字母|all:全拼音]
      * @return string
      */
-    public static function encode($utf8Data, $sRetFormat='head'){
+    public static function encode($utf8Data, $sRetFormat='head', $sNonHeadSep = ''){
         $sGBK = iconv('UTF-8', 'GBK', $utf8Data);
         $aBuf = array();
         for ($i=0, $iLoop=strlen($sGBK); $i<$iLoop; $i++) {
@@ -62,7 +62,7 @@ class CUtf8_PY {
         if ('head' === $sRetFormat)
             return implode('', $aBuf);
         else
-            return implode(' ', $aBuf);
+            return implode($sNonHeadSep, $aBuf);
     }
 
     /**
