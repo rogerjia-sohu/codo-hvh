@@ -25,7 +25,7 @@ class Action {
 '{
 	"test": {
 		"Func": "Test",
-		"Args": ["doc", "usr"]
+		"Args": []
 	},
 	"register": {
 		"Func": "Register",
@@ -323,53 +323,9 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 	}
 
 	public static function Test() {
-		// Holds any testing/debugging codes
-		//echo self::GetUser(['13683514096']);
-$maxtime = ini_get(max_execution_time);
-ini_set(max_execution_time, $maxtime* 10);
-		$srcfile = 'D:/WTServer/tmp/SC001.png';
-		$dstfile = 'D:/WTServer/tmp/SC001-small.png';
-		//$imgcompress = new ImageCompressor($srcfile, Lib::$Config->ImageFileManager->Compression->Default);
-		//var_dump($imgcompress->CompressTo($dstfile));
-
-		$imgfm = new ImageFileManager('','images/user',HASH_MD5,2,Lib::$Config->ImageFileManager->DBTableName, Lib::$Config->ImageFileManager->Compression);
-		$imgfm->EnableCompression(0);
-		//var_dump($imgfm);
-		$imgfm->EnableCompression(true);
-		$imgfm->SetCompressionMode('Portrait');
-		//var_dump($imgfm);
-		//var_dump($imgfm->SaveFile($srcfile));
-echo CUtf8_PY::encode('abcyxz', 1);
-/*
-		$mobile = 13683514101;
-		//$cnt = 21;
-		$cnt = 7;
-		$lastmobile = $cnt + $mobile;
-
-		for ($i = $mobile; $i < $lastmobile; $i++) {
-			$nickname = sprintf('FcodoTest%02u', $i - $mobile + 1);
-			echo "$i<br>";
-			//EasemobHelper::CreateUser($i, '1234');
-			//EasemobHelper::SetNickname($i, $nickname);
-			for ($j = $i+1; $j < $lastmobile; $j++) {
-				echo "&nbsp&nbsp$i, $j, $nickname";
-				//EasemobHelper::AddFriend($i, $j);
-				//echo EasemobHelper::GetUser($i);
-				//break;
-			}
-			//break;
-
-			//self::Register([$i, '1234']);
-			//735272d2-52ce-4d75-6204-c784595317a0
-			
-			//EasemobHelper::SetNickname($i, $nickname);
-			//$userid = json_decode(self::GetUser([$i]))->server->info->userid;
-			//echo "$userid<br>";
-			//(User::SetNickname($userid, $nickname, false));
-			//break;
-		}
-*/
-ini_set(max_execution_time, $maxtime);
+		$params = explode('&', $_SERVER['QUERY_STRING']);
+		$tester = new Tester(__CLASS__, 10);
+		return $tester->Test($params);
 	}
 
 	public static function CheckID18($pParamArray) {

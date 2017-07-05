@@ -28,6 +28,7 @@ require_once 'hvh/Redis.class.php';
 require_once 'hvh/RedisPool.class.php';
 require_once 'hvh/RedisSMSCode.class.php';
 require_once 'hvh/Silk2AmrFileManager.class.php';
+require_once 'hvh/Tester.class.php';
 require_once 'hvh/UserBase.class.php';
 require_once 'hvh/User.class.php';
 require_once 'hvh/Utils.class.php';

@@ -218,6 +218,45 @@ class User extends UserBase {
 		return $ret;
 	}
 
+	protected static function GroupAndSortUser(&$pUserlist) {
+		$usergroup = array();
+		foreach ($pUserlist as $user) {
+			$key = CUtf8_PY::encode($user['nickname'], false);
+			if (array_key_exists($key, $usergroup)) {
+				$curval = $usergroup[$key];
+			} else {
+				$curval = array();
+			}
+			array_push($curval, $user);
+			$usergroup[$key] = $curval;
+		}
+	
+		ksort($usergroup);
+
+		$newlist = array();
+		$sortedlist = array();
+		$key = $prevkey = '';
+		foreach ($usergroup as $users) {
+			$key = strtoupper($users[0]['nickname'][0]);
+			if (!empty($prevkey) && !($key === $prevkey)) {
+				$alist['initial'] = $prevkey;
+				$alist['infolist'] = $sortedlist;
+				array_push($newlist, $alist);
+				unset($sortedlist);
+				$sortedlist = array();
+			}
+			foreach ($users as $usr) {
+				array_push($sortedlist, $usr);
+			}
+			$prevkey = $key;
+		}
+		$alist['initial'] = $prevkey;
+		$alist['infolist'] = $sortedlist;
+		array_push($newlist, $alist);
+		$pUserlist = $newlist;
+		return;
+	}
+
 	public static function GetUserInfo($pDataArray, $pByID = true, $pAsFriendList = true) {
 		$serverinfo = array('errno' => 0, Lib::$Config->InterfaceName->Data => array(), 'error' => '');
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
@@ -259,34 +298,7 @@ class User extends UserBase {
 		}
 		//$ret['server'][Lib::$Config->InterfaceName->Data] = array('userlist' => $userlist);
 		if ($pAsFriendList) {
-			$usergroup = array();
-			foreach ($userlist as $user) {
-				$py = CUtf8_PY::encode($user['nickname']);
-				$key = strtoupper($py[0]);
-				if ($key < 'A' || $key > 'Z') {
-					$key = '#';
-				}
-				if (array_key_exists($key, $usergroup)) {
-					$curval = $usergroup[$key];
-				} else {
-					$curval = array();
-				}
-				array_push($curval, $user);
-				$usergroup[$key] = $curval;
-			}
-			ksort($usergroup);
-			$k = array_keys($usergroup);
-			$v = array_values($usergroup);
-
-			unset($userlist);
-			$cnt = count($k);
-			for ($i = 0; $i < $cnt; $i++) {
-				$alist = array(
-					'initial' => $k[$i],
-					"infolist" => $v[$i]
-				);
-				$userlist[$i] = $alist;
-			}
+			self::GroupAndSortUser($userlist);
 			$ret['server'][Lib::$Config->InterfaceName->Data] = $userlist;
 		} else {
 			$ret['server'][Lib::$Config->InterfaceName->Data] = $userlist[0];

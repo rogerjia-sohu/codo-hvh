@@ -1,7 +1,7 @@
 {
 	"test": {
 		"Func": "Test",
-		"Args": ["doc", "usr"]
+		"Args": []
 	},
 	"register": {
 		"Func": "Register",
