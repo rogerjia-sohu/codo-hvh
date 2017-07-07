@@ -2,6 +2,7 @@ log
 src
 tmp
 _ssh_key
+ssh_cert
 data
 /HOW-TO LetsEncrypt.md
 /HOW-TO Magento.md
