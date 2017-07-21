@@ -32,7 +32,7 @@ class ImageCompressor{
 	protected $mMimeType;
 	protected $mIsValidSrcImg = false;
 
-	public function __construct($pSrcFile, $pMode = null, $pDefaultPercent = 0.75, $pDefaultQuality = 2, $pDefaultFilters = 0) {
+	public function __construct($pSrcFile, $pMode = null, $pDefaultPercent = 0.75, $pDefaultQuality = 0.75, $pDefaultFilters = 0) {
 		$this->mSrcFile = $pSrcFile;
 		$this->mFileSize = @filesize($pSrcFile);
 		
@@ -46,7 +46,7 @@ class ImageCompressor{
 			$this->mDefaultQuality = $pDefaultQuality;
 			
 		} else {
-			$this->mDefaultQuality = 2;
+			$this->mDefaultQuality = 0.75;
 		}
 
 		if (self::IsValidFilters($pDefaultFilters)) {
@@ -77,10 +77,10 @@ class ImageCompressor{
 				$filters = $pMode->Filters;
 				$this->mKeepOriginal = (bool)$pMode->KeepOriginal;
 				$this->mOriginalPrefix = $pMode->OriginalPrefix;
+				$this->mDefaultPercent = $percent;
+				$this->mDefaultQuality = $quality;
+				$this->mDefaultFilters = $filters;
 			}
-			$this->mDefaultPercent = $percent;
-			$this->mDefaultQuality = $quality;
-			$this->mDefaultFilters = $filters;
 		} else {
 			// Invalid srcfile
 		}
@@ -136,37 +136,50 @@ class ImageCompressor{
 	}
 
 	protected static function IsValidQuality($pQuality) {
-		return ($pQuality >= 0 && $pQuality <= 9);
+		return ($pQuality >= 0.0 && $pQuality <= 1.0);
 	}
 
 	protected static function IsValidFilters($pFilters) {
 		return ($pFilters >= 0);
 	}
 
-	protected function GetFunction($pFuncPrefix) {
+	public /*protected*/ static function JpgQ2PngQ($pJpgQ) {
+		if (!self::IsValidQuality($pJpgQ)) {
+			return false;
+		}
+		$pngQ10 = (1.0 - $pJpgQ) * 10;
+		return ceil($pngQ10 -0.5);
+	}
+
+	protected function GetFunctionAndQuality($pFuncPrefix) {
 		$mimeinfo = explode('/', $this->mMimeType);
 		if ($mimeinfo[0] !== 'image') {
 			return false;
 		}
 		$func = $pFuncPrefix.$mimeinfo[1];
+		if ($mimeinfo[1] === 'jpeg') {
+			$q = (int)($this->mDefaultQuality * 100);
+		} else if ($mimeinfo[1] === 'png') {
+			$q = self::JpgQ2PngQ($this->mDefaultQuality);
+		}
 		if (!function_exists($func)) {
 			return false;
 		}
-		return $func;
+		return array($func, $q);
 	}
 
 	protected function CreateImage($pSrcFile) {
-		$func = $this->GetFunction('imagecreatefrom');
+		list($func, $q) = $this->GetFunctionAndQuality('imagecreatefrom');
 		if ($func) {
 			return $func($pSrcFile);
 		}
 		return $func;
 	}
 
-	protected function SaveImage($pDstRes, $pDstFile, $pQulity, $pFilters) {
-		$func = $this->GetFunction('image');
+	protected function SaveImage($pDstRes, $pDstFile, $pQuality, $pFilters) {
+		list($func, $q) = $this->GetFunctionAndQuality('image');
 		if ($func) {
-			return $func($pDstRes, $pDstFile, $pQulity, $pFilters);
+			return $func($pDstRes, $pDstFile, $q, $pFilters);
 		}
 		return $func;
 	}
