@@ -98,14 +98,14 @@ class Lib {
 				"Use": "Default",
 				"Default": {
 					"Percent": 0.75,
-					"Quality": 2,
+					"Quality": 0.75,
 					"Filters": 0,
 					"KeepOriginal": 1,
 					"OriginalPrefix": "original-"
 				},
 				"Portrait": {
 					"MaxSide": 200,
-					"Quality": 0,
+					"Quality": 1.0,
 					"Filters": 0,
 					"KeepOriginal": 1,
 					"OriginalPrefix": "original-"
@@ -141,14 +141,14 @@ class Lib {
 					"Use": "Default",
 					"Default": {
 						"Percent": 0.75,
-						"Quality": 2,
+						"Quality": 0.75,
 						"Filters": 0,
 						"KeepOriginal": 1,
 						"OriginalPrefix": "original-"
 					},
 					"Portrait": {
 						"MaxSide": 200,
-						"Quality": 0,
+						"Quality": 1.0,
 						"Filters": 0,
 						"KeepOriginal": 1,
 						"OriginalPrefix": "original-"
