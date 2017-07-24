@@ -25,14 +25,14 @@ class Tester {
 		$this->InitArgv($pArgv);
 		$argv = &$this->mArgv;
 
-		$maxtime = ini_get(max_execution_time);
-		ini_set(max_execution_time, $maxtime * $this->mCoe);
+		$maxtime = ini_get('max_execution_time');
+		ini_set('max_execution_time', $maxtime * $this->mCoe);
 
 		// TODO
 		echo 'Adding test code in ' . __METHOD__ . ' ('. __FILE__ . ':'.__LINE__ .')<br>';
 		//$ret = Utils::FormatReturningData($this->mArgv);
 
-		ini_set(max_execution_time, $maxtime);
+		ini_set('max_execution_time', $maxtime);
 		return $ret;
 	}
 
