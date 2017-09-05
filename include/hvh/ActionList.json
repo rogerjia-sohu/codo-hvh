@@ -1,4 +1,20 @@
 {
+	"index": {
+		"Func": "HomepageInfo",
+		"Args": []
+	},
+	"ptflow": {
+		"Func": "PatientFlow",
+		"Args": ["center"]
+	},
+	"item": {
+		"Func": "Item",
+		"Args": ["n"]
+	},
+	"content": {
+		"Func": "content",
+		"Args": ["aid"]
+	},
 	"test": {
 		"Func": "Test",
 		"Args": []

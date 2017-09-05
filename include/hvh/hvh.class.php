@@ -50,7 +50,7 @@ class Lib {
 		"Global": {
 			"ReturningFormat": "json",
 			"JSON": {
-				"EncOptions": 64
+				"EncOptions": 320
 			}
 		},
 		"InterfaceName": {

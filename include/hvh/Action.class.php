@@ -23,6 +23,26 @@ class Action {
 */
 	private static $DefaultList =
 '{
+	"index": {
+		"Func": "HomepageInfo",
+		"Args": []
+	},
+	"ptflow": {
+		"Func": "PatientFlow",
+		"Args": ["center"]
+	},
+	"item": {
+		"Func": "Item",
+		"Args": ["n"]
+	},
+	"content": {
+		"Func": "Content",
+		"Args": ["aid"]
+	},
+	"like": {
+		"Func": "LikeAnArticle",
+		"Args": ["aid", "uid"]
+	},
 	"test": {
 		"Func": "Test",
 		"Args": []
@@ -407,6 +427,7 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 		if (count($ret) === 2) {
 			//thumbnail
 			$urllist = array_combine(array('original', 'thumbnail'),$ret); 
+			$_SESSION['portrait'] = $urllist['thumbnail'];
 		}
 		return Utils::FormatReturningData(array('url' => $urllist));
 	}
@@ -564,6 +585,193 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 			$ret = User::GetUserInfo([$mobile], false, false);
 		} else {
 			// ?
+		}
+		return Utils::FormatReturningData($ret);
+	}
+////////////////////////////////////////////////////////////////
+	public static function HomepageInfo($pParamArray) {
+		/*
+最外层加版本号
+{banner:{num,url,params},item:{num,url,params}}
+
+何键:
+给出banner以及下面item的数量，各自图标的url，
+我:
+明白
+何键:
+banner 的params是跳转信息。
+item的params是跳转信息以及文本文字
+文本文字包含字体颜色得了
+*/
+
+/*
+{
+	"version": "1.0",
+	"banner": {
+		"url": "bannerUrl"
+	},
+	"service": {
+		"txt": "serviceText",
+		"url": "itemUrl",
+		"imgUrl": "serviceImageUrl"
+	},
+	"item": {
+		"txt": "itemText",
+		"url": "itemUrl",
+		"imgUrl": "itemImageUrl"
+	}
+}
+*/
+		$bannerBase = 'http://192.168.19.146/hvh/banner/';
+		$serverBase = 'http://192.168.19.146/hvh/service/';
+		$itemBase = 'http://192.168.19.146/hvh/v1/api/item?n=';
+		
+
+		$ver = '1.0'; //$ver = ??::GetVersion();
+		$ret = array(
+			'version' => $ver,
+			'banner'=> array(
+				'url' => array(
+					$bannerBase.'banner_01.jpg',
+					$bannerBase.'banner_02.jpg',
+					$bannerBase.'banner_03.jpg'
+				)
+			),
+			'service' => array(
+				'txt' => array(
+					'ServiceText_1',
+					'ServiceText_2',
+				),
+				'url' => array(
+					'serviceUrl_1',
+					'serviceUrl_2',
+				),
+				'imgUrl' => array(
+					$serverBase.'service_01.png',
+					$serverBase.'service_02.png'
+				)
+			),
+			'item' => array(
+				'txt' => array(
+					'营养治疗',
+					'营养食谱',
+					'心理教育',
+					'疾病科普'
+				),
+				'url' => array(
+					/*$itemBase.'1',
+					$itemBase.'2',
+					$itemBase.'3',
+					$itemBase.'4'
+					*/
+					'1','2','3','4'
+				),
+				'imgUrl' => array(
+					$serverBase.'service_03.png',
+					$serverBase.'service_04.png',
+					$serverBase.'service_05.png',
+					$serverBase.'service_06.png'
+				)
+			)
+		);
+		return Utils::FormatReturningData($ret);
+	}
+	
+	public static function Item($pParamArray) {
+		$n = $pParamArray[0];
+		$imgBase = 'http://192.168.19.146/hvh/bgimg/';
+		$contentBase = 'http://192.168.19.146/hvh/v1/api/content?aid=';
+		$sql = 'select am.`title`,DATE(am.`createTime`) as `time`, '
+			."am.`writer`,concat('$imgBase',am.`imgurl`) as `imgUrl`,"
+			//."concat('$contentBase', am.`ID`) as `txtUrl`, am.`avatar`,"
+			.'am.`ID` as `txtUrl`, am.`avatar`,'
+			.'am.`description`,'
+			.'ac.`name` as `category`, `likes`'
+			.' from `article_master` am, `article_category` ac'
+			.' where am.`status`=1'
+			." and am.`category`= ac.`ID`"
+			." and am.`category`= $n"
+			.' order by `createTime` desc;';
+
+		$db = Lib::DBInit();
+		$result = $db->Query($sql);
+		Lib::DBTerm($db);
+		
+		$data = array();
+		foreach ($result as $row) {
+			array_push($data, $row);
+		}
+		$ret = array('list'=>$data);
+
+		return Utils::FormatReturningData($ret);
+	}
+	public static function Content($pParamArray) {
+		$n = $pParamArray[0];
+		$ret = $n;
+
+		$sql = 'select content'
+			.' from `article_master`'
+			.' where `status`=1'
+			." and `ID`= $n;";
+
+		$db = Lib::DBInit();
+		$result = $db->Query($sql);
+		Lib::DBTerm($db);
+
+		foreach ($result as $row) {
+			//array_push($data, $row);
+			$ret = $row;
+			break;
+		}
+
+		return Utils::FormatReturningData($ret);
+	}
+	public static function LikeAnArticle($pParamArray) {
+		$aid = $pParamArray[0];
+		$uid = $pParamArray[1];
+
+		$lockTblW = 'lock table `%s` write';
+		$lockTblR = 'lock table `%s` read';
+		
+		$db = Lib::DBInit();
+		Lib::DBTerm($db);
+
+		return Utils::FormatReturningData($ret);
+	}
+
+	public static function PatientFlow($pParamArray) {
+		if (is_array($pParamArray) && count($pParamArray) === 1) {
+/*
+病人流转
+每月{
+总人数，
+死亡，转院，临时，长期，各项人数
+}
+总共最近12个月，默认最近一个月
+*/
+			$cenid = $pParamArray[0];
+			$ret = array(
+				'center' => $cenid,
+				'Month'=> array(
+					array(
+						'total' => 200,
+						'decease' => 5,
+						'trans' => 12,
+						'temp' => 8,
+						'permanent' => 175
+					),
+					array(
+						'total' => 200,
+						'decease' => 5,
+						'trans' => 12,
+						'temp' => 8,
+						'permanent' => 175
+					)
+				)
+			);
+		} else {
+			// ?
+			$ret = "center required";
 		}
 		return Utils::FormatReturningData($ret);
 	}

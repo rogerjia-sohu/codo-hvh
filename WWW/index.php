@@ -93,6 +93,8 @@ function sanitizeDomainName($name) {
 
 
 $curdir=dirname(__FILE__);
+$wtdir=realpath("$curdir/../");
+$wtdir=strtr($wtdir,'\\','/');
 $handle=opendir($curdir);
 $projects = '';
 $domainsDir=dirname(ini_get('upload_tmp_dir'))."/conf/domains.d";
@@ -208,21 +210,23 @@ if (isset($_REQUEST['sendmail'])) {
 
 	$pageTitle="Test mail()";
 
-	$mailinfo="sendmail_path = ".ini_get('sendmail_path');
+	$mailinfo="Current sendmail_path = ".ini_get('sendmail_path');
+	$mailinfo2="<br>For <b>Development</b> use mailToDisk:<br>sendmail_path = <small>'\"$wtdir/bin/php\" -n -f \"$wtdir/include/tools/mailtodisk.php\"'</small>"; 
+	$mailinfo2.="<br>For <b>Production</b> use mSmtp:<br> sendmail_path = <small>'\"$wtdir/bin/msmtp/msmtp.exe\" -C \"$wtdir/conf/msmtp.ini\" -t'</small>"; 
 
 	$from=isset($_POST['from']) ? $_POST['from'] : 'WTServer@localhost';
 	$to=isset($_POST['to']) ? $_POST['to'] : '';
 	$subject=isset($_POST['subject']) ? $_POST['subject'] : 'Test Email using WTServer`s PHP + MSMTP';
-	$text=isset($_POST['text']) ? $_POST['text'] : "Test Email using WTServer`s PHP + MSMTP\n\n$mailinfo";
+	$text=isset($_POST['text']) ? $_POST['text'] : "Test Email using WTServer PHP mail() function\n\n$mailinfo";
 
 	if (isset($_POST['sendmail'])) {
 		if (!$to) $mailinfo.="<BR><sman style='color:red;'>Error ! Invalid 'To:' email recipient</span>";
-		elseif (mail($to,$subject,$text,"From: $from") ) $mailinfo.="<BR><sman style='color:green;'>Sent ! - Check log/msmtp.log for details</span>";
+		elseif (mail($to,$subject,$text,"From: $from") ) $mailinfo.="<BR><sman style='color:green;'>Sent ! - Check log/php_mail.log for details</span>";
 		else $mailinfo.="<BR><sman style='color:red;'>Error !</span>";
 	}
 
 	$extra .= <<< EOPAGE
-  <h2>Send a test email:</h2>
+  <h2>Send a test email using PHP`s <u>mail()</u> function:</h2>
 <form id="form1" name="form1" method="post" action="?sendmail=1">
   <p>$mailinfo</p>
   <table width="100%" border="0" cellspacing="0" cellpadding="0">
@@ -247,7 +251,10 @@ if (isset($_REQUEST['sendmail'])) {
       <td><input type="submit" name="sendmail" id="sendmail" value="Submit" class="button" /></td>
     </tr>
   </table>
+  <p>$mailinfo2</p>
 </form>
+
+
 EOPAGE;
 }
 
