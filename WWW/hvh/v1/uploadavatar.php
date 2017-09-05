@@ -1,36 +1,6 @@
-<?php
-require_once 'hvh/hvh.class.php';
-use hvh\{Silk2AmrFileManager,Utils};
-
-$pagename = 'Test UploadPhoto';
-printf('<head><title>%s</title></head>', $pagename);
-printf('%s<p/>', $pagename);
-
-if (!empty($_FILES)) {
-	$files = $_FILES['filelist'];
-	$fm = new Silk2AmrFileManager();
-	$filenames = $_FILES['filelist']['name'];
-	$cnt = 0;
-	foreach ($filenames as $fname) {
-		if (!empty($fname)) {
-			$orgext = '.'.pathinfo($fname, PATHINFO_EXTENSION);
-			$tmpfile = $_FILES['filelist']['tmp_name'][$cnt];
-			$tmpfile_w_orgext = $tmpfile . $orgext;
-			rename($tmpfile, $tmpfile_w_orgext);
-			$ret = $fm->SaveFile($tmpfile_w_orgext);
-			unlink($tmpfile_w_orgext);
-			printf('%s => "%s"<br/>', $fname, $ret);
-		}
-		$cnt++;
-	}
-
-	$url = sprintf('http://%s%s', $_SERVER['SERVER_NAME'],$_SERVER['REQUEST_URI']);
-	printf('<p/><input type="button" onclick="JavaScript:window.location.assign(\'%s\')" value="返回"/><br/>',$url);
-
-} else {
-?>
 <html>
 <head>
+<title>Test uploadavatar</title>
 <script type="text/javascript">
 	var max_files = 10;
 	var cnt = 0;
@@ -60,17 +30,29 @@ if (!empty($_FILES)) {
 			objBr = null;
 		}
 	}
+	function preSidInput(sender) {
+		sender.select();
+	}
+
 </script>
 </head>
-<body onload='addLabelAndFile(1)'>
-<form id="frmUpload" action="/hvh/v1/api/uploadavatar?mobile=13683514096&sessionid=ff94f94493298a228d168fdca138c4bd" method="post" enctype="multipart/form-data">
+<body onload='addLabelAndFile(1);preSidInput(document.getElementById("sid"))'>
+Test uploadavatar<p/>
+<form id="frmUpload" action="/hvh/v1/api/uploadavatar?mobile=13683514096" method="post" enctype="multipart/form-data">
+sessionid=
+<input
+	type="text"
+	id="sid"
+	name="sessionid"
+	maxLength=32
+	size=40
+	value="必须输入已登录用户的sessionid"
+	onfocus="preSidInput(this)"
+/>
+<p/>
 <input type="submit" name="submit" value="上传" />
 <input type="button" name="addFile" value="+file (max=10)" onclick="addLabelAndFile(1)" />
 <p/>
 </form>
 </body>
 </html>
-<?php
-}
-?>
-
