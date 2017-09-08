@@ -1,20 +1,4 @@
 {
-	"index": {
-		"Func": "HomepageInfo",
-		"Args": []
-	},
-	"ptflow": {
-		"Func": "PatientFlow",
-		"Args": ["center"]
-	},
-	"item": {
-		"Func": "Item",
-		"Args": ["n"]
-	},
-	"content": {
-		"Func": "content",
-		"Args": ["aid"]
-	},
 	"test": {
 		"Func": "Test",
 		"Args": []
@@ -126,5 +110,53 @@
 	"getuser": {
 		"Func": "GetUser",
 		"Args": ["mobile"]
+	},
+	"index": {
+		"Func": "HomepageInfo",
+		"Args": []
+	},
+	"ptflow": {
+		"Func": "PatientFlow",
+		"Args": ["center"]
+	},
+	"item": {
+		"Func": "Item",
+		"Args": ["n"]
+	},
+	"content": {
+		"Func": "Content",
+		"Args": ["aid"]
+	},
+	"like": {
+		"Func": "LikeAnArticle",
+		"Args": ["aid", "uid"]
+	},
+	"chksignin": {
+		"Func": "CheckSignIn",
+		"Args": ["uid"]
+	},
+	"signin": {
+		"Func": "SignIn",
+		"Args": ["uid"]
+	},
+	"devrepair": {
+		"Func": "DeviceRepair",
+		"Args": ["devid", "by", "report"]
+	},
+	"devrepairlist": {
+		"Func": "DeviceRepairList",
+		"Args": []
+	},
+	"devstat": {
+		"Func": "DeviceStatistics",
+		"Args": []
+	},
+	"getcredit": {
+		"Func": "GetCredit",
+		"Args": ["uid"]
+	},
+	"setcredit": {
+		"Func": "SetCredit",
+		"Args": ["uid","ruleid"]
 	}
 }

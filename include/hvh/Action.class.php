@@ -23,26 +23,6 @@ class Action {
 */
 	private static $DefaultList =
 '{
-	"index": {
-		"Func": "HomepageInfo",
-		"Args": []
-	},
-	"ptflow": {
-		"Func": "PatientFlow",
-		"Args": ["center"]
-	},
-	"item": {
-		"Func": "Item",
-		"Args": ["n"]
-	},
-	"content": {
-		"Func": "Content",
-		"Args": ["aid"]
-	},
-	"like": {
-		"Func": "LikeAnArticle",
-		"Args": ["aid", "uid"]
-	},
 	"test": {
 		"Func": "Test",
 		"Args": []
@@ -154,6 +134,54 @@ class Action {
 	"getuser": {
 		"Func": "GetUser",
 		"Args": ["mobile"]
+	},
+	"index": {
+		"Func": "HomepageInfo",
+		"Args": []
+	},
+	"ptflow": {
+		"Func": "PatientFlow",
+		"Args": ["center"]
+	},
+	"item": {
+		"Func": "Item",
+		"Args": ["n"]
+	},
+	"content": {
+		"Func": "Content",
+		"Args": ["aid"]
+	},
+	"like": {
+		"Func": "LikeAnArticle",
+		"Args": ["aid", "uid"]
+	},
+	"chksignin": {
+		"Func": "CheckSignIn",
+		"Args": ["uid"]
+	},
+	"signin": {
+		"Func": "SignIn",
+		"Args": ["uid"]
+	},
+	"devrepair": {
+		"Func": "DeviceRepair",
+		"Args": ["devid", "by", "report"]
+	},
+	"devrepairlist": {
+		"Func": "DeviceRepairList",
+		"Args": []
+	},
+	"devstat": {
+		"Func": "DeviceStatistics",
+		"Args": []
+	},
+	"getcredit": {
+		"Func": "GetCredit",
+		"Args": ["uid"]
+	},
+	"setcredit": {
+		"Func": "SetCredit",
+		"Args": ["uid","ruleid"]
 	}
 }';
 
@@ -186,7 +214,10 @@ class Action {
 	}
 
 	public static function LogIn($pParamArray) {
+$logfile = 'D:/wtserver/tmp/login.log';
+Utils::LogToFile($logfile, Utils::FormatReturningData($pParamArray));
 		$argc = count($pParamArray);
+Utils::LogToFile($logfile, "argc=$argc");
 		if (is_array($pParamArray) && ($argc === 5)) {
 			$mobile = $pParamArray[0];
 			$pw = $pParamArray[1];
@@ -207,6 +238,7 @@ class Action {
 			$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 			$ret = array('server' => $serverinfo, 'db' => $dbinfo);
 		}
+Utils::LogToFile($logfile, "final return:".Utils::FormatReturningData($ret));
 		return Utils::FormatReturningData($ret);
 	}
 
@@ -345,7 +377,7 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 	public static function Test() {
 		$params = explode('&', $_SERVER['QUERY_STRING']);
 		$tester = new Tester(__CLASS__, 10);
-		return $tester->Test($params);
+		return Utils::FormatReturningData($tester->Test($params));
 	}
 
 	public static function CheckID18($pParamArray) {
@@ -391,15 +423,23 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 	}
 
 	public static function UploadAvatar($pParamArray) {
+$logfile = 'D:/wtserver/tmp/uploadavatar.log';
+Utils::LogToFile($logfile, Utils::FormatReturningData($pParamArray));
+		
 		$ret = false;
 		$files = Utils::GetAllPostedFileInfo();
+
+Utils::LogToFile($logfile, Utils::FormatReturningData($files));
 
 		if (is_array($pParamArray) && count($pParamArray) === 2) {
 			$mobile = $pParamArray[0];
 			$sessionid = $pParamArray[1];
 			$ret = User::IsLoggedIn($mobile, $sessionid);
+
+Utils::LogToFile($logfile, 'IsLoggedIn:'.Utils::FormatReturningData($ret));
 			if ($ret) {
-				foreach ($files as $fileinfo) {					
+
+				foreach ($files as $fileinfo) {
 					$fm = new ImageFileManager($_SERVER['DOCUMENT_ROOT'], 'images/user',
 									0, 0, null, Lib::$Config->ImageFileManager->Compression);
 					$fm->EnableCompression(true);
@@ -424,11 +464,16 @@ $ret = $sms->TextMsgTemplate($pParamArray[0], $pParamArray[1]);
 				}
 			}
 		}
+Utils::LogToFile($logfile, 'ImageFileManager returned:'.Utils::FormatReturningData($ret));
+Utils::LogToFile($logfile, 'ImageFileManager count:'.count($ret));
 		if (count($ret) === 2) {
 			//thumbnail
 			$urllist = array_combine(array('original', 'thumbnail'),$ret); 
 			$_SESSION['portrait'] = $urllist['thumbnail'];
+Utils::LogToFile($logfile, 'urllist :'.count($urllist));
 		}
+
+Utils::LogToFile($logfile, 'final return :'.Utils::FormatReturningData(array('url' => $urllist)));
 		return Utils::FormatReturningData(array('url' => $urllist));
 	}
 
@@ -735,6 +780,9 @@ item的params是跳转信息以及文本文字
 		
 		$db = Lib::DBInit();
 		Lib::DBTerm($db);
+		$ret = array(
+			"likes" => 1
+		);
 
 		return Utils::FormatReturningData($ret);
 	}
@@ -773,6 +821,115 @@ item的params是跳转信息以及文本文字
 			// ?
 			$ret = "center required";
 		}
+		return Utils::FormatReturningData($ret);
+	}
+	public static function CheckSignIn($pParamArray) {
+		$uid = $pParamArray[0];
+		$usersign = new UserSign($uid);
+		$ret = array(
+			'lastsignin' => $usersign->GetLastSignIn(),
+			'curtime' => time()
+		);
+		unset($usersign);
+		return Utils::FormatReturningData($ret);
+	}
+	public static function SignIn($pParamArray) {
+		$uid = $pParamArray[0];
+		$usersign = new UserSign($uid);
+		$ret = $usersign->SignIn();
+		unset($usersign);
+		return Utils::FormatReturningData($ret);
+	}
+	public static function DeviceRepair($pParamArray) {
+		$devid = $pParamArray[0];
+		$repairman = $pParamArray[1];
+		$report = $pParamArray[2];
+
+		$id = uuid::yacomb();
+		$now = date('Y-m-d H:i:s');
+		$sql = 'insert into `device_maintenance`(`ID`, `DeviceID`, `Repairman`,`RepairDate`, `Report`)'
+			."values('$id', '$devid', '$repairman', '$now', '$report');";
+
+		$db = Lib::DBInit();
+		$db->autocommit(false);
+		$db->begin_transaction();
+		$db->Query($sql);
+		$rollback = true;
+		if ($db->affected_rows === 1) {
+			$sql = "update `device` set `LastRepairDate`='$now' where `ID`='$devid';";
+			$db->Query($sql);
+			if ($db->affected_rows === 1) {
+				$ret = $db->commit();
+				$rollback = false;
+			}
+		} else {
+			$rollback = false;
+		}
+		if ($rollback) {
+			$db->rollback();
+		}
+		Lib::DBTerm($db);
+		
+		if ($ret) {
+			$ret = array('sts'=>'ok');
+		} else {
+			$ret = array('sts'=>'err');
+		}
+		
+		return Utils::FormatReturningData($ret);
+	}
+	public static function DeviceRepairList($pParamArray) {
+		$db = Lib::DBInit();
+		$sql = 'SELECT b.`ID` as `DevID`, b.`Name`, b.`Model`, b.`SerialNum`, a.`RepairDate`, a.`Report`,a.`Repairman` '
+			. ' FROM `device_maintenance` a, `device` b WHERE a.`DeviceID` = b.`ID` order by b.`Name`;';
+		$result = $db->Query($sql);
+		Lib::DBTerm($db);
+
+		$rootdata = array();
+		$data1 = array();
+
+		foreach ($result as $row) {
+			array_push($rootdata, $row);
+		}
+
+		if ($ret) {
+			$ret = array('sts'=>'ok');
+		} else {
+			$ret = array('sts'=>'err');
+		}
+		$ret = $rootdata;
+
+		return Utils::FormatReturningData($ret);
+	}
+
+	public static function DeviceStatistics($pParamArray) {
+		$db = Lib::DBInit();
+		$sql = 'select `ID` as `DevID`,`SerialNum`, `Name`, `Brand`, `Model`, `LastRepairDate` from `device`;';
+		$result = $db->Query($sql);
+		Lib::DBTerm($db);
+
+		$data = array();
+		foreach ($result as $row) {
+			array_push($data, $row);
+		}
+
+		if ($ret) {
+			$ret = array('sts'=>'ok');
+		} else {
+			$ret = array('sts'=>'err');
+		}
+		$ret = $data;
+
+		return Utils::FormatReturningData($ret);
+	}
+	public static function GetCredit($pParamArray) {
+		$uc = new UserCredit($pParamArray[0]);
+		$ret = $uc->GetCredit(0);
+		return Utils::FormatReturningData($ret);
+	}
+	public static function SetCredit($pParamArray) {
+		$uc = new UserCredit($pParamArray[0]);
+		$ret = $uc->SetCredit($pParamArray[1]);
 		return Utils::FormatReturningData($ret);
 	}
 ////////////////////////////////////////////////////////////////

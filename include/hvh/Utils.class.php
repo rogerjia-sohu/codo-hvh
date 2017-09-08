@@ -85,6 +85,12 @@ class Utils {
 				'timestamp' => (int)$pTimestamp
 				);
 	}
+
+	public static function LogToFile($pFilepath, $pData) {
+		$timems = microtime(true);
+		$time = Date('Ymd H:i:s.', (int)$timems) . (int)(($timems - (int)$timems) * 1000);
+		file_put_contents($pFilepath, "$time --> $pData\r\n", FILE_APPEND |LOCK_EX);
+	}
 ////////////////////////////////////////////////////////////////
 	/**
 	 * 模拟post进行url请求

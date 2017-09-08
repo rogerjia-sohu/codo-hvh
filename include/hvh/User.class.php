@@ -58,6 +58,8 @@ class User extends UserBase {
 
 	// abstract
 	public function LogIn() {
+$logfile = 'D:/wtserver/tmp/login.log';
+
 		$argc = func_num_args();
 		$argv = func_get_args();
 		$lng = $argv[0];
@@ -74,12 +76,15 @@ class User extends UserBase {
 		$redis = Lib::RedisInit();
 		$userdata = $redis->hgetall(self::$LoginPrefix . md5($this->mMobileNum));
 		Lib::RedisTerm($redis);
-		$iphash = $userdata['iphash'];
+		$iphash = $userdata['iphash'];		
+Utils::LogToFile($logfile, "iphash=$iphash");
 		if ($iphash === md5($_SERVER['REMOTE_ADDR'])) {
+Utils::LogToFile($logfile, "MATCH using last session");
 			$sessid = $userdata['sessionid'];
+Utils::LogToFile($logfile, "last session: $sessid");
 			session_id($sessid);
 			@session_start();
-			//$_SESSION['logintime'] = $logintime;
+			//$_SESSION['lastlogin'] = $lastlogin;
 			$_SESSION['lng'] = $lng;
 			$_SESSION['lat'] = $lat;
 			$_SESSION['devid'] = $devid;
@@ -91,7 +96,7 @@ class User extends UserBase {
 					'username'=>$_SESSION['UserName'],
 					'nickname'=>$_SESSION['Nickname'],
 					'portrait'=>$_SESSION['portrait'],
-					'logintime'=>$_SESSION['logintime'],
+					'lastlogin'=>$_SESSION['lastlogin'],
 					'lng'=>$_SESSION['lng'],
 					'lat'=>$_SESSION['lat'],
 					'devid'=>$_SESSION['devid']
@@ -100,6 +105,7 @@ class User extends UserBase {
 			$redis->touch_ttl(self::$LoginPrefix . md5($this->mMobileNum));
 			Lib::RedisTerm($redis);
 		} else {
+Utils::LogToFile($logfile, "UNMATCH reading from DB");
 			$strfmt = "select `ID`,`MobileNum`,`Name`,`Nickname`,`RegTime`,`Password`,`PortraitID`"
 				." from %s where `MobileNum`='%s';";
 			$sql = sprintf($strfmt, $this->mDBTableName, $this->mMobileNum);
@@ -110,7 +116,7 @@ class User extends UserBase {
 			if (is_array($row) && $row['Password']===$this->mPassword) {
 				@session_start();
 				$sessid = session_id();
-				$logintime = Utils::GetTimeArray(microtime(true))['timestamp'];
+				$lastlogin = Utils::GetTimeArray(microtime(true))['timestamp'];
 
 				$_SESSION['UserID'] = $row['ID'];
 				$_SESSION['MobileNum'] = $row['MobileNum'];
@@ -122,7 +128,7 @@ class User extends UserBase {
 				$imgfm = new ImageFileManager('', 'images/user');
 				$portrait = $imgfm->GetOneLocalFileUrl($_SESSION['PortraitID']);
 				$_SESSION['portrait'] = $portrait;
-				$_SESSION['logintime'] = $logintime;
+				$_SESSION['lastlogin'] = $lastlogin;
 				$_SESSION['lng'] = $lng;
 				$_SESSION['lat'] = $lat;
 				$_SESSION['devid'] = $devid;
@@ -134,7 +140,7 @@ class User extends UserBase {
 					'username'=>$row['Name'],
 					'nickname'=>$row['Nickname'],
 					'portrait'=>$portrait,
-					'logintime'=>$logintime,
+					'lastlogin'=>$lastlogin,
 					'lng'=>$lng,
 					'lat'=>$lat,
 					'devid'=>$devid
@@ -160,6 +166,13 @@ class User extends UserBase {
 			$dbinfo[Lib::$Config->InterfaceName->Error] = $db->error;
 			Lib::DBTerm($db);
 		}
+
+		$usersign = new UserSign($_SESSION['UserID']);
+		$usercredit = new UserCredit($_SESSION['UserID']);
+
+		$serverinfo[Lib::$Config->InterfaceName->Data]['curtime']= Utils::GetTimeArray(microtime(true))['timestamp'];
+		$serverinfo[Lib::$Config->InterfaceName->Data]['lastsignin']= $usersign->GetLastSignIn();
+		$serverinfo[Lib::$Config->InterfaceName->Data]['credits']= $usercredit->GetCredit(0)['credit'];
 
 		$ret = array(Lib::$Config->InterfaceName->Server => $serverinfo, Lib::$Config->InterfaceName->DB => $dbinfo);
 
@@ -207,7 +220,6 @@ class User extends UserBase {
 		Lib::DBTerm($db);
 		$imgcnt = (int)$result->fetch_array(MYSQLI_ASSOC)['ImgCnt'];
 
-		
 		$strfmt = "update `%s` set `PortraitID`='%s' where `ID`='%s';";
 		$sql = sprintf($strfmt, explode('.', basename(__FILE__))[0], $keyinfo[0], $pUserID);
 

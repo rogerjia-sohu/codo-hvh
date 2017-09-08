@@ -31,6 +31,8 @@ require_once 'hvh/Silk2AmrFileManager.class.php';
 require_once 'hvh/Tester.class.php';
 require_once 'hvh/UserBase.class.php';
 require_once 'hvh/User.class.php';
+require_once 'hvh/UserCredit.class.php'; // 用户积分
+require_once 'hvh/UserSign.class.php'; // 用户签到
 require_once 'hvh/Utils.class.php';
 require_once 'hvh/wx.class.php'; // 微信小程序
 
