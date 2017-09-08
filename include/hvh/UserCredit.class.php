@@ -54,6 +54,7 @@ class UserCredit {
 	public function SetCredit($pRuleID) {
 		$ret = array(
 			'setcredit' => 'err',
+			'credit' => 0,
 			'error' => ''
 		);
 
@@ -66,9 +67,9 @@ class UserCredit {
 		$row = $result->fetch_array(MYSQLI_NUM);
 		$curvalue = (int)$row[0];
 		$rulevalue = (int)$row[1];
-
-		if ($curvalue + $rulevalue >=0) {
-			$newcur = $curvalue + $rulevalue;
+		$ret['credit'] = $curvalue;
+		$newcur = $curvalue + $rulevalue;
+		if ($newcur >=0) {	
 			if ($rulevalue < 0) {
 				$strfmt = "update `%s` set `Used`=`Used` - $rulevalue";
 			} else {
@@ -79,6 +80,7 @@ class UserCredit {
 			$db->Query($sql);
 			if ($db->affected_rows === 1) {
 				$ret['setcredit'] = 'ok';
+				$ret['credit'] = $newcur;
 			} else {
 				$ret['error'] = 'db failure';
 			}
