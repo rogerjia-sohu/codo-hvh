@@ -12,9 +12,14 @@ abstract class UserBase {
 		return Utils::GetVersion(__CLASS__, __FILE__, $pType);
 	}
 
+	public const TYPE_DOCTOR = 1;
+	public const TYPE_NURSE = 2;
+	public const TYPE_PATIENT = 3;
+
 	protected static $LoginPrefix = 'ulogin_';
 	protected $mID;
 	protected $mMobileNum;
+	protected $mType;
 ////////////////////////////////
 	protected $mName;
 	protected $mGender;
@@ -30,12 +35,13 @@ abstract class UserBase {
 	abstract public function Register();
 	abstract public function LogIn();
 
-	public function __construct($pMobile = '', $pPW = '', $pWxCode = '', $pFilename) {
+	public function __construct($pMobile = '', $pPW = '', $pType = USER_DOCTOR, $pWxCode = '', $pFilename) {
 		//print_r('entering >>> '.__METHOD__.'<br>');
 		$this->mID = uuid::yacomb();
 		$this->mRegTime = date('Y-m-d H:i:s');
 		$this->mMobileNum = $pMobile;
 		$this->mPassword = $pPW;
+		$this->mType = $pType;
 		$this->mWxCode = $pWxCode;
 		$this->SetDBTableName($pFilename);
 		//print_r('exiting <<< '.__METHOD__.'<br>');

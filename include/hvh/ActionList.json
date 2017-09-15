@@ -5,7 +5,11 @@
 	},
 	"register": {
 		"Func": "Register",
-		"Args": ["mobile", "pw", "doctor"]
+		"Args": ["mobile", "pw", "type"]
+	},
+	"register2": {
+		"Func": "Register2",
+		"Args": ["mobile", "pw", "type"]
 	},
 	"login": {
 		"Func": "LogIn",
@@ -151,6 +155,10 @@
 		"Func": "DeviceStatistics",
 		"Args": []
 	},
+	"stock": {
+		"Func": "StockCorD",
+		"Args": ["type"]
+	},
 	"getcredit": {
 		"Func": "GetCredit",
 		"Args": ["uid"]
@@ -158,5 +166,41 @@
 	"setcredit": {
 		"Func": "SetCredit",
 		"Args": ["uid","ruleid"]
+	},
+	"userlist": {
+		"Func": "GetUserList",
+		"Args": ["type"]
+	},
+	"doctorlist": {
+		"Func": "GetDoctorList",
+		"Args": []
+	},
+	"nurselist": {
+		"Func": "GetNurseList",
+		"Args": []
+	},
+	"patientlist": {
+		"Func": "GetPatientList",
+		"Args": []
+	},
+	"prehd": {
+		"Func": "PreHD",
+		"Args": ["op", "uid"]
+	},
+	"inhd": {
+		"Func": "InHD",
+		"Args": ["op", "uid"]
+	},
+	"posthd": {
+		"Func": "PostHD",
+		"Args": ["op", "uid"]
+	},
+	"hdadv": {
+		"Func": "HDDoctorAdvice",
+		"Args": ["op", "uid"]
+	},
+	"exreg": {
+		"Func": "ExReg",
+		"Args": ["name", "mobile"]
 	}
 }

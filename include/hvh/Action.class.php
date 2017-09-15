@@ -29,7 +29,11 @@ class Action {
 	},
 	"register": {
 		"Func": "Register",
-		"Args": ["mobile", "pw", "doctor"]
+		"Args": ["mobile", "pw", "type"]
+	},
+	"register2": {
+		"Func": "Register2",
+		"Args": ["mobile", "pw", "type"]
 	},
 	"login": {
 		"Func": "LogIn",
@@ -175,6 +179,10 @@ class Action {
 		"Func": "DeviceStatistics",
 		"Args": []
 	},
+	"stock": {
+		"Func": "StockCorD",
+		"Args": ["type"]
+	},
 	"getcredit": {
 		"Func": "GetCredit",
 		"Args": ["uid"]
@@ -182,6 +190,42 @@ class Action {
 	"setcredit": {
 		"Func": "SetCredit",
 		"Args": ["uid","ruleid"]
+	},
+	"userlist": {
+		"Func": "GetUserList",
+		"Args": ["type"]
+	},
+	"doctorlist": {
+		"Func": "GetDoctorList",
+		"Args": []
+	},
+	"nurselist": {
+		"Func": "GetNurseList",
+		"Args": []
+	},
+	"patientlist": {
+		"Func": "GetPatientList",
+		"Args": []
+	},
+	"prehd": {
+		"Func": "PreHD",
+		"Args": ["op", "uid"]
+	},
+	"inhd": {
+		"Func": "InHD",
+		"Args": ["op", "uid"]
+	},
+	"posthd": {
+		"Func": "PostHD",
+		"Args": ["op", "uid"]
+	},
+	"hdadv": {
+		"Func": "HDDoctorAdvice",
+		"Args": ["op", "uid"]
+	},
+	"exreg": {
+		"Func": "ExReg",
+		"Args": ["name", "mobile"]
 	}
 }';
 
@@ -204,11 +248,49 @@ class Action {
 					EasemobHelper::CreateUser($mobile, $pw);
 					EasemobHelper::SetNickname($mobile, $nickname);
 				}
-			} else if ($pParamArray[2] == 'doctor') {
+			} else {
 				//$doctor = new Doctor($pParamArray[0], $pParamArray[1]);
 				//$ret = $doctor->Register();
 				$ret = 'doctor registration';
+				switch ($pParamArray[2]) {
+				   case 'd':
+						 echo "doctor";
+						 break;
+				   case 'n':
+						 echo "nurse";
+						 break;
+				   case 'p':
+						 echo "patient";
+						 break;
+				}
+
 			}
+		}
+		return Utils::FormatReturningData($ret);
+	}
+	public static function Register2($pParamArray) {
+		$serverinfo = array('errno' => 2000, Lib::$Config->InterfaceName->Data => '', 'error' => 'Invalid request');
+		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
+		$ret = array('server' => $serverinfo, 'db' => $dbinfo);
+
+		$paramcnt = count($pParamArray);
+		if (is_array($pParamArray) &&  $paramcnt === 3) {
+			$mobile = $pParamArray[0];
+			$pw = $pParamArray[1];
+			$usertype = (int)($pParamArray[2]);
+			if ($usertype < User::TYPE_DOCTOR || $usertype > User::TYPE_PATIENT) {
+				$usertype = User::TYPE_DOCTOR;
+			}
+			$user = new User($mobile, $pw, $usertype);
+			$ret = $user->Register();
+			$username = $ret['server'][Lib::$Config->InterfaceName->Data]['username'];
+			$nickname = $ret['server'][Lib::$Config->InterfaceName->Data]['nickname'];
+			if (!empty($username)) {
+				//EasemobHelper::CreateUser($username, $pParamArray[1]);
+				EasemobHelper::CreateUser($mobile, $pw);
+				EasemobHelper::SetNickname($mobile, $nickname);
+			}			
+			var_dump($user);
 		}
 		return Utils::FormatReturningData($ret);
 	}
@@ -922,6 +1004,11 @@ item的params是跳转信息以及文本文字
 
 		return Utils::FormatReturningData($ret);
 	}
+	public static function StockCorD($pParamArray) {
+		$type = $pParamArray[0];
+
+		return Utils::FormatReturningData($ret);
+	}
 	public static function GetCredit($pParamArray) {
 		$uc = new UserCredit($pParamArray[0]);
 		$ret = $uc->GetCredit(0);
@@ -930,6 +1017,46 @@ item的params是跳转信息以及文本文字
 	public static function SetCredit($pParamArray) {
 		$uc = new UserCredit($pParamArray[0]);
 		$ret = $uc->SetCredit($pParamArray[1]);
+		return Utils::FormatReturningData($ret);
+	}
+	public static function GetUserList($pParamArray) {
+		$type = $pParamArray[0];
+		if ($type < User::TYPE_DOCTOR || $type > User::TYPE_PATIENT) {
+			$type = User::TYPE_DOCTOR;
+		}
+		$ret = User::GetList($type);
+		return Utils::FormatReturningData($ret);
+	}
+	public static function GetDoctorList($pParamArray) {
+		$ret = User::GetList(User::TYPE_DOCTOR);
+		return Utils::FormatReturningData($ret);
+	}
+	public static function GetNurseList($pParamArray) {
+		$ret = User::GetList(User::TYPE_NURSE);
+		return Utils::FormatReturningData($ret);
+	}
+	public static function GetPatientList($pParamArray) {
+		$ret = User::GetList(User::TYPE_PATIENT);
+		return Utils::FormatReturningData($ret);
+	}
+	public static function PreHD($pParamArray) {
+		$ret = PreHD::Do($pParamArray);
+		return Utils::FormatReturningData($ret);
+	}
+	public static function ExReg($pParamArray) {
+		//允许跨域访问
+		header('Access-Control-Allow-Origin:*');
+		header('Access-Control-Allow-Methods:POST');
+		header('Access-Control-Allow-Headers:x-requested-with,content-type');
+
+		$logfile = 'D:/wtserver/exreg.log';
+		$name = $pParamArray[0];
+		$mobile = $pParamArray[1];
+		if (Utils::LogToFile($logfile, "$name,$mobile")) {
+			$ret = array('sts' => 'ok');
+		} else {
+			$ret = array('sts' => 'ng');
+		}
 		return Utils::FormatReturningData($ret);
 	}
 ////////////////////////////////////////////////////////////////
@@ -957,8 +1084,12 @@ item的params是跳转信息以及文本文字
 				--$i;
 				$cnt = count($args);
 			} else {
-				if (!empty($val)) {
+				if (is_numeric($val)) {
 					$args[$i] = $val;
+				} else {
+					if (!empty($val)) {
+						$args[$i] = $val;
+					}
 				}
 			}
 		}

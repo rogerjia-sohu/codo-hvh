@@ -10,9 +10,9 @@ class User extends UserBase {
 		return Utils::GetVersion(__CLASS__, __FILE__, $pType);
 	}
 
-	public function __construct($pMobile = '', $pPW = '', $pWxCode = '') {
+	public function __construct($pMobile = '', $pPW = '', $pType = self::TYPE_DOCTOR, $pWxCode = '') {
 		// Do not change the file name which the next step relies on.
-		parent::__construct($pMobile, $pPW, $pWxCode, __FILE__);
+		parent::__construct($pMobile, $pPW, $pType, $pWxCode, __FILE__);
 	}
 
 	// abstract
@@ -21,11 +21,11 @@ class User extends UserBase {
 		$dbinfo = array('errno' => 0, 'sqlstate' => '00000', 'error' => '');
 
 		$defaultname = substr($this->mMobileNum, -4) .'-'. substr($this->mID, 0, 8);
-		$strfmt = "insert into `%s`(`ID`,`MobileNum`,`Name`,`Nickname`,`RegTime`,`Password`,`PortraitID`)"
-			."values('%s','%s','%s','%s','%s','%s','%s');";
+		$strfmt = "insert into `%s`(`ID`,`MobileNum`,`Name`,`Nickname`,`RegTime`,`Password`,`PortraitID`,`TypeID`)"
+			."values('%s','%s','%s','%s','%s','%s','%s', %d);";
 		$sql = sprintf($strfmt, 
 				$this->mDBTableName, $this->mID, $this->mMobileNum,	$defaultname, $defaultname,
-				$this->mRegTime, $this->mPassword, Lib::$Config->User->DefaultPortraitID);
+				$this->mRegTime, $this->mPassword, Lib::$Config->User->DefaultPortraitID, $this->mType);
 
 		$db = Lib::DBInit();
 		$db->query($sql);
@@ -285,7 +285,8 @@ Utils::LogToFile($logfile, "UNMATCH reading from DB");
 
 		//$searchfield = array( true => 'ID', false => 'Name');
 		$searchfield = array( true => 'ID', false => 'MobileNum');
-		$sql = sprintf("select $fieldset from user where `%s` in ('$valueset')", $searchfield[$pByID]);
+		$strfmt = sprintf("select $fieldset from `%s` where `%s` in ('$valueset')", $searchfield[$pByID]);
+		$sql = sprintf($strfmt, explode('.', basename(__FILE__))[0]);
 
 		$db = Lib::DBInit();
 		$result = $db->query($sql);
@@ -361,6 +362,19 @@ Utils::LogToFile($logfile, "UNMATCH reading from DB");
 		//if ($ret->entities[0]->nickname === $pNickname) {
 			$ret = self::UpdateInfo($pUser, array('Nickname' => $pNickname), $pByID);
 		//}		
+		return $ret;
+	}
+	
+	public static function GetList($pType) {
+		$strfmt = "select `Name`, `MobileNum` from `%s` where `TypeID`='$pType' and `Status`='1';";
+		$sql = sprintf($strfmt,	explode('.', basename(__FILE__))[0]);
+
+		$db = Lib::DBInit();
+		$result = $db->query($sql);
+		Lib::DBTerm($db);
+
+		$keynames = array('dummy','doctor', 'nurse', 'patient');
+		$ret = array("$keynames[$pType]list" => $result->fetch_all(MYSQLI_ASSOC));
 		return $ret;
 	}
 

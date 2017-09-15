@@ -31,6 +31,14 @@ class Tester {
 		// TODO
 		echo 'Adding test code in ' . __METHOD__ . ' ('. __FILE__ . ':'.__LINE__ .')<br>';
 		//$ret = Utils::FormatReturningData($this->mArgv);
+		$c = new UserCredit('c3b77748-80b7-ab29-6d71-c77e594b2e76');
+
+		$v=1;
+		var_dump(empty($v));
+		var_dump(is_numeric($v));
+		//$ret = $c->SetCredit(11);
+		//$ret = $c->GetCredit(0);
+		
 
 $hdjsonLong =
 '
@@ -109,7 +117,8 @@ $hdjsonLong =
 ';
 
 		$hd = json_decode($hdjsonLong);
-		var_dump(json_encode($hd));
+		//var_dump(json_encode($hd));
+		//$ret = $hdjsonLong;
 		
 		ini_set('max_execution_time', $maxtime);
 		return $ret;

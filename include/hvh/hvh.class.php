@@ -24,6 +24,7 @@ require_once 'hvh/IDCard.class.php';
 require_once 'hvh/Order.class.php';
 require_once 'hvh/PageManager.class.php';
 require_once 'hvh/Pool.class.php';
+require_once 'hvh/PreHD.class.php';
 require_once 'hvh/Redis.class.php';
 require_once 'hvh/RedisPool.class.php';
 require_once 'hvh/RedisSMSCode.class.php';

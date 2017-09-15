@@ -89,7 +89,7 @@ class Utils {
 	public static function LogToFile($pFilepath, $pData) {
 		$timems = microtime(true);
 		$time = Date('Ymd H:i:s.', (int)$timems) . (int)(($timems - (int)$timems) * 1000);
-		file_put_contents($pFilepath, "$time --> $pData\r\n", FILE_APPEND |LOCK_EX);
+		return file_put_contents($pFilepath, "$time --> $pData\r\n", FILE_APPEND |LOCK_EX);
 	}
 ////////////////////////////////////////////////////////////////
 	/**
