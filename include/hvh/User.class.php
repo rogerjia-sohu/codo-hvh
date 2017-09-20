@@ -285,8 +285,8 @@ Utils::LogToFile($logfile, "UNMATCH reading from DB");
 
 		//$searchfield = array( true => 'ID', false => 'Name');
 		$searchfield = array( true => 'ID', false => 'MobileNum');
-		$strfmt = sprintf("select $fieldset from `%s` where `%s` in ('$valueset')", $searchfield[$pByID]);
-		$sql = sprintf($strfmt, explode('.', basename(__FILE__))[0]);
+		$sql = sprintf("select $fieldset from `%s` where `%s` in ('$valueset')",
+					explode('.', basename(__FILE__))[0], $searchfield[$pByID]);
 
 		$db = Lib::DBInit();
 		$result = $db->query($sql);
