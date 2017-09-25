@@ -377,6 +377,13 @@ Utils::LogToFile($logfile, "UNMATCH reading from DB");
 		$ret = array("$keynames[$pType]list" => $result->fetch_all(MYSQLI_ASSOC));
 		return $ret;
 	}
+	
+	public static function GetAvatar($pMobile, $pSessionID) {
+		session_id($pSessionID);
+		@session_start();
+		$ret = array('url'=> $_SESSION['portrait']);
+		return $ret;
+	}
 
 	protected static function UpdateInfo($pUser, $pInfoArray, $pByID = true) {
 		$serverinfo = array('errno' => 0, Lib::$Config->InterfaceName->Data => '', 'error' => '');

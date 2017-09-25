@@ -226,6 +226,10 @@ class Action {
 	"exreg": {
 		"Func": "ExReg",
 		"Args": ["name", "mobile"]
+	},
+	"avatar": {
+		"Func": "Avatar",
+		"Args": ["mobile", "sessionid"]
 	}
 }';
 
@@ -1058,6 +1062,12 @@ item的params是跳转信息以及文本文字
 			$ret = array('sts' => 'ng');
 		}
 		return Utils::FormatReturningData($ret);
+	}
+
+	public static function Avatar($pParamArray) {
+		$mobile = $pParamArray[0];
+		$sid = $pParamArray[1];
+		return Utils::FormatReturningData(User::GetAvatar($mobile, $sid));
 	}
 ////////////////////////////////////////////////////////////////
 	public static function ProcessRequest($pActionKeyword = 'action') {
