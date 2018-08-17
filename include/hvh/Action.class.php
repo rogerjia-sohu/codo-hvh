@@ -1123,7 +1123,7 @@ item的params是跳转信息以及文本文字
 */
 	public static function GetList() {
 		$list = null;
-		$fn = __DIR__ . str_replace(__NAMESPACE__,'', __CLASS__).'List.json';
+		$fn = __DIR__ . str_replace(__NAMESPACE__.'\\', DIRECTORY_SEPARATOR, __CLASS__) .'List.json';
 		if (file_exists($fn)) {
 			$list = json_decode(file_get_contents($fn));
 		}
