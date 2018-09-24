@@ -297,7 +297,7 @@ class Lib {
 
 	public static function GetConfig() {
 		$cfg = null;
-		$fn = __DIR__ . str_replace(__NAMESPACE__,'', __CLASS__).'.json';
+		$fn = __DIR__ . str_replace(__NAMESPACE__.'\\', DIRECTORY_SEPARATOR, __CLASS__) .'.json';
 		if (file_exists($fn)) {
 			$cfg = json_decode(file_get_contents($fn))->Config;
 		}
